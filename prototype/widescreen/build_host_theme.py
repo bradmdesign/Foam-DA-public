@@ -148,7 +148,7 @@ def build():
     # The local site's CSP permits same-origin fonts but not data: fonts.
     # Keep the font local and content-addressed; only the host opts into it.
     font_bytes = (output / 'da-local.ttf').read_bytes()
-    font_name = 'da-local-' + hashlib.sha256(font_bytes).hexdigest()[:12] + '.ttf'
+    font_name = 'da-local.ttf'
     font_public = ROOT.parents[1] / 'site/public/assets/host'
     font_public.mkdir(parents=True, exist_ok=True)
     (font_public / font_name).write_bytes(font_bytes)

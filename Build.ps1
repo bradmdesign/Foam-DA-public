@@ -1,7 +1,6 @@
 param([string]$GamePath='C:\Program Files (x86)\KRU\Dark Ages',[switch]$SkipDependencies,[switch]$SkipLibrary)
 $ErrorActionPreference='Stop'
 Set-Location -LiteralPath $PSScriptRoot
-& (Join-Path $PSScriptRoot 'Restore-Resources.ps1')
 function Check-Exit([string]$Step) { if($LASTEXITCODE -ne 0){throw "$Step failed ($LASTEXITCODE)."} }
 if(-not $SkipDependencies){
     python -m pip install -r requirements.txt

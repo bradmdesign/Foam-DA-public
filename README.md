@@ -14,7 +14,6 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\Build.ps1
 
 This installs Python and JavaScript dependencies, prepares the local game copy and theme, builds the offline library, and compiles `prototype/widescreen/Foam-DA.exe`. The original game installation is preserved. The first build needs internet access for dependencies; normal reference browsing uses local files.
 
-The GitHub repository keeps offline data and artwork in `resources/reference-*.zip`. `Build.ps1` restores these automatically. To unpack them without building, run `powershell -NoProfile -ExecutionPolicy Bypass -File .\Restore-Resources.ps1`. All source code remains directly browsable in the repository.
 
 To select a different game installation:
 

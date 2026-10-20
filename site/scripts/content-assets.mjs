@@ -27,7 +27,10 @@ async function worker(){while(queue.length&&!blocked){const im=queue.shift();if(
   const bytes=Buffer.from(await response.arrayBuffer());if(bytes.length>12_000_000)throw new Error('Asset exceeds 12 MB review limit');
   const type=response.headers.get('content-type')||'';if(!type.startsWith('image/'))throw new Error(`Not an image: ${type}`);
   const hash=crypto.createHash('sha256').update(bytes).digest('hex');const ext=path.extname(new URL(im.url).pathname).toLowerCase();
-  const destination='/assets/game/'+hash.slice(0,20)+ext;
+  const shared=Object.values(manifest).find(a=>a.sha256===hash&&a.path&&fs.existsSync('public'+a.path));
+  const sourceName=path.basename(new URL(im.url).pathname,ext).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,80)||'image';
+  let destination=shared?.path;
+  if(!destination){let name='reference-'+sourceName,index=2;destination='/assets/game/'+name+ext;while(fs.existsSync('public'+destination))destination='/assets/game/'+name+'-'+(index++)+ext;}
   let width=null,height=null;
   if(bytes.subarray(1,4).toString()==='PNG'){width=bytes.readUInt32BE(16);height=bytes.readUInt32BE(20)}
   else if(bytes.subarray(0,3).toString()==='GIF'){width=bytes.readUInt16LE(6);height=bytes.readUInt16LE(8)}
