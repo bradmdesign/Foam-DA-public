@@ -1,0 +1,7 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {temuairDateSeconds,dateInterval,ascensionTarget,levelGain} from '../lib/calculators.ts';
+test('impossible calendar dates are rejected instead of silently rolling forward',()=>{assert.throws(()=>dateInterval('2026-02-31','2026-03-05'));assert.throws(()=>dateInterval('2026-2-1','2026-03-05'));assert.equal(dateInterval('2024-02-29','2024-03-01'),86400);});
+test('calendar differences normalize midnight and preserve the stated game-minute unit',()=>{assert.equal(dateInterval('2024-02-28','2024-03-01'),172800);assert.equal(dateInterval('Deoch 200, 1st Moon, 1st Sun, 12:00 AM','Deoch 200, 1st Moon, 1st Sun, 12:01 AM',true),7.5);assert.equal(dateInterval('Deoch 200, 1st Moon, 1st Sun, 12:00 AM','Deoch 200, 1st Moon, 1st Sun, 12:00 PM',true),5400);assert.throws(()=>temuairDateSeconds('Deoch 1, 99th Moon, 1st Sun, 1:00 PM'));assert.throws(()=>dateInterval('2026-03-01','2026-01-01'));});
+test('historical investment retains the original starting offsets',()=>{assert.equal(ascensionTarget(49n,50n,50n).cost,24500n);assert.equal(ascensionTarget(24n,25n,25n).cost,12000n);assert.equal(ascensionTarget(49n,99n,50n).count,1n);});
+test('early CON allocation changes later growth without retroactive gains',()=>{const first=levelGain(3,1);assert.equal(first,100);assert.equal(51+first,151);assert.ok(levelGain(5,2)>levelGain(3,2));});

@@ -1,0 +1,16 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {resolveFact,comparableValue} from './source-consensus.mjs';
+import {displayText} from '../lib/presentation.ts';
+const ev=(value,site)=>({value,source:'https://'+site+'/page'});
+const fact=(a,b,c)=>({label:'Ability level',value:a,evidence:[ev(a,'vorlof.com')],alternatives:[ev(b,'www.wanderlustdb.com'),ev(c,'www.da-wizard.com')]});
+test('two-of-three wins regardless of original priority',()=>{const f=fact('45','36','36');assert.equal(resolveFact(f).changed,true);assert.equal(f.value,'36');assert.equal(f.evidence.length,2);assert.equal(f.alternatives[0].value,'45');});
+test('format differences compare as numeric facts',()=>{const f=fact('8,000','5000','8000');assert.equal(resolveFact(f).agreed,true);assert.equal(f.value,'8,000');});
+test('three different values remain disputed',()=>{const f=fact('45','36','40');assert.equal(resolveFact(f).agreed,false);assert.equal(f.value,'45');});
+test('multiple pages do not create extra votes',()=>{const f=fact('45','36','40');f.evidence.push({value:'45',source:'https://www.vorlof.com/second'});assert.equal(resolveFact(f).agreed,false);});
+test('contradiction within one website abstains',()=>{const f=fact('45','36','36');f.alternatives.push({value:'37',source:'https://da-wizard.com/other'});assert.equal(resolveFact(f).agreed,false);});
+test('unknown numerical values are not zero',()=>{assert.equal(comparableValue('Weight','?'),null);assert.equal(comparableValue('Cooldown','None'),null);assert.equal(comparableValue('Weight','0'),'0');});
+test('presentation removes source-site branding while retaining uncertainty',()=>{assert.equal(displayText('Wanderlust learning requirements'),'Additional learning requirements');assert.equal(displayText('Vorlof lists 3; Wanderlust lists 5. These are unconfirmed.'),'The reference lists 3; another reference lists 5. These are unconfirmed.');});
+test('presentation preserves the real NPC in lists and quest instructions',()=>{assert.equal(displayText('Vorlof'),'Vorlof');const instruction='Complete the early combat exercise offered by the trainer named Vorlof.';assert.equal(displayText(instruction),instruction);});
+test('two references can agree on learning costs despite quantity and currency formatting',()=>{const f={label:'Learning materials',value:'5 Bow\n20,000 Coins',evidence:[ev('5 Bow\n20,000 Coins','vorlof.com')],alternatives:[ev('Bow (5)\n25,000 Gold','wanderlustdb.com'),ev('Bow(5)\n25000 Coins','da-wizard.com')]};assert.equal(resolveFact(f).changed,true);assert.equal(f.value,'Bow (5)\n25,000 Gold');});
+test('an omitted ability cost does not erase a recorded requirement',()=>{const f={label:'Learning materials',value:'5 Bow\n20,000 Coins\n4,500 Ability',evidence:[ev('5 Bow\n20,000 Coins\n4,500 Ability','vorlof.com')],alternatives:[ev('Bow (5)\n20,000 Gold','wanderlustdb.com'),ev('Bow(5)\n20000 Coins','da-wizard.com')]};assert.equal(resolveFact(f).changed,false);assert.ok(f.value.includes('4,500 Ability'));});

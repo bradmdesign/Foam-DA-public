@@ -1,0 +1,35 @@
+SleepHunter4 reference material
+https://github.com/ewrogers/SleepHunter4
+Reference revision: 66c278f37b6bc11cd2763ce669ae1e6cb6079fb6
+
+The companion's 7.41 ability layouts, panel positions, and input planning
+were informed by ClientLayout.xml, ClientAbilityParser.cs,
+ClientIntentPlanner.cs, and ClientChatInputReader.cs from this project.
+The host implementation is local; SleepHunter.exe is not launched.
+
+The MIT License (MIT)
+
+Copyright (c) 2004-2023 Erik Rogers
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+Character appearance metadata and composite-canvas offsets were independently
+checked against the installed 7.41 client, with reference to Eric W. Rogers'
+public Dark Ages reverse-engineering documentation:
+https://github.com/ewrogers/darkages-741-re
+No remote service renders or receives saved character appearances.

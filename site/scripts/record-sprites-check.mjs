@@ -1,0 +1,44 @@
+// An isolated browser checks the exported site; it does not control a player window.
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath,pathToFileURL} from 'node:url';
+const folder=path.dirname(fileURLToPath(import.meta.url));
+const {chromium}=await import('playwright');
+const browser=await chromium.launch({headless:true,channel:'msedge'});
+const base='http://127.0.0.1:'+(process.env.PORT||4173);
+try{
+ const page=await browser.newPage({viewport:{width:1800,height:1000}});
+ const skin=fs.readFileSync(path.join(folder,'../../prototype/widescreen/theme/assets.css'),'utf8')+fs.readFileSync(path.join(folder,'../../prototype/widescreen/host-dock.css'),'utf8');
+ await page.addInitScript(css=>document.addEventListener('DOMContentLoaded',()=>{const style=document.createElement('style');style.textContent=css;document.head.appendChild(style)}),skin);
+ await page.goto(base+'/classes/rogue/#archer',{waitUntil:'networkidle'});
+ const archery=page.locator('#archer .class-record-list').first().locator('tr').filter({has:page.getByRole('link',{name:'Archery',exact:true})});
+ await archery.locator('.learning-ranks summary').click();
+ const third=archery.locator('.learning-rank').filter({has:page.getByRole('heading',{name:/^Archery 3 /})});
+ for(const name of ['Royal Bow','Borim','Green Tonic'])assert.equal(await third.locator('.inline-record').filter({hasText:name}).locator('img').count(),1);
+ assert.match(await third.innerText(),/5x\s*Royal Bow/);
+ await third.scrollIntoViewIfNeeded();
+ await page.screenshot({path:path.join(folder,'../../prototype/widescreen/build/record-material-sprites.png')});
+ await page.goto(base+'/quests/aman-jungle/',{waitUntil:'networkidle'});
+ assert.equal(await page.locator('.guide-steps .inline-record').filter({hasText:'unlock'}).count(),0,'Ordinary unlock prose must not show a skill');
+ const first=page.locator('.guide-steps > li').first();
+ const target=first.locator('.inline-record').filter({hasText:'Dendron'});
+ assert.equal(await target.locator('img').count(),1);assert.match(await target.innerText(),/20x\s*Dendron/);
+ const required=page.locator('[data-fact-label="Items Required"] .fact-value-full');
+ assert.equal(await required.locator('img.reference-sprite').count(),2);
+ assert.match(await required.innerText(),/20x\s*Scrap of Clothing/);
+ await page.screenshot({path:path.join(folder,'../../prototype/widescreen/build/quest-target-sprites.png')});
+ await page.setViewportSize({width:448,height:400});
+ await first.scrollIntoViewIfNeeded();
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,'Sprites must not cause horizontal overflow in the game panel');
+ const images=page.locator('.inline-record img');
+ assert.ok(await images.count()>0);
+ for(const image of await images.all())assert.equal(await image.evaluate(async e=>{e.loading='eager';try{await e.decode();return e.naturalWidth>0;}catch{return false;}}),true,'Every reference image must load locally');
+ await page.screenshot({path:path.join(folder,'../../prototype/widescreen/build/quest-target-sprites-compact.png')});
+ await page.goto(base+'/crafting/ancient-baem-armors/',{waitUntil:'networkidle'});
+ const goldRow=page.locator('tr').filter({has:page.getByRole('link',{name:'Gold Bar',exact:true})}).first();
+ await goldRow.waitFor();
+ assert.equal(await goldRow.locator('.reference-quantity').count(),0,'A separate quantity column must not get an assumed quantity in the item name');
+ assert.equal((await goldRow.locator('td').nth(1).innerText()).trim(),'4');
+ console.log(JSON.stringify({status:'passed',learningMaterials:true,quantities:true,questTarget:true,requiredItems:true,compactOverflow:false,localImagesLoaded:true,separateQuantityColumn:true}));
+}finally{await browser.close();}

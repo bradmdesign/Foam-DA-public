@@ -1,0 +1,18 @@
+{
+  "checkedAt": "2026-10-20T19:59:09.383Z",
+  "schema": "pass",
+  "uniqueIds": "pass",
+  "uniqueRoutes": "pass",
+  "localAssets": "pass",
+  "internalRelations": "pass",
+  "cordovanBoots": "pass",
+  "distinctSameSpriteItems": "pass",
+  "entries": 15835,
+  "relations": 41670,
+  "coverage": {
+    "discovered": 19110,
+    "cachedUnrepresented": 0,
+    "needsEditorialReview": 0,
+    "sourceBlocked": 14526
+  }
+}

@@ -1,0 +1,7 @@
+import fs from 'node:fs';
+const css=fs.readFileSync('app/globals.css','utf8');
+const luminance=hex=>{const c=hex.slice(1).match(/../g).map(x=>parseInt(x,16)/255).map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4);return .2126*c[0]+.7152*c[1]+.0722*c[2]};
+const pairs=[['foreground','background'],['foreground','card'],['muted-foreground','background'],['muted-foreground','card'],['muted-foreground','muted'],['link','background'],['link','card'],['brass','background'],['brass','muted'],['primary-foreground','primary'],['sidebar-foreground','sidebar'],['sidebar-accent-foreground','sidebar-accent'],['destructive','card']];
+const results=[];
+for(const [theme,selector] of [['dark',':root{'],['light',':root[data-theme=light]{']]){const block=css.slice(css.indexOf(selector)+selector.length).split('}')[0];const values=Object.fromEntries([...block.matchAll(/--([a-z-]+):(#\w{6})(?=;|$)/g)].map(m=>[m[1],m[2]]));for(const [fg,bg] of pairs){const a=luminance(values[fg]),b=luminance(values[bg]),ratio=(Math.max(a,b)+.05)/(Math.min(a,b)+.05);results.push({theme,foreground:fg,background:bg,ratio:Number(ratio.toFixed(2)),pass:ratio>=4.5})}}
+const report={checkedAt:new Date().toISOString(),scope:'Core text token pairs; interactive states also reviewed with Lighthouse and browser screenshots.',minimum:Math.min(...results.map(r=>r.ratio)),results};fs.writeFileSync('research/contrast.json',JSON.stringify(report,null,2));console.log(JSON.stringify({pairs:results.length,minimum:report.minimum,failed:results.filter(r=>!r.pass)}));if(results.some(r=>!r.pass))process.exitCode=1;

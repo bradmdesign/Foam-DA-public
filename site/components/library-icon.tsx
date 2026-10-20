@@ -1,0 +1,2 @@
+import {BookOpen,Compass,ScrollText,Gem,Sparkles,Map,Hammer,Moon,Calculator} from 'lucide-react';
+export function LibraryIcon({name,...props}:{name:string;className?:string;size?:number}){const Icon=({book:BookOpen,compass:Compass,scroll:ScrollText,gem:Gem,sparkles:Sparkles,map:Map,hammer:Hammer,moon:Moon,calculator:Calculator} as Record<string,typeof BookOpen>)[name]||BookOpen;return <Icon aria-hidden="true" strokeWidth={1.5} {...props}/>;}

@@ -1,0 +1,174 @@
+/* Compact library presentation, injected only into the host's corner browser.
+   Records and filters remain navigable; source credits are local text. */
+.topbar,.library-sidebar,footer,.breadcrumbs,.catalog-intro,.site-footer,.site-nav,.skip-link,.contents-rail{display:none!important}
+html,body{min-width:0!important;font-size:var(--da-companion-font-size,14px)!important}
+body{line-height:1.45!important;overflow-wrap:anywhere}
+.page-surface{margin-left:0!important}
+.library-shell{min-height:0!important}
+main.page-container{padding:6px 8px!important;max-width:none!important}
+.search-form{margin:0 0 4px!important;padding:3px!important;gap:6px!important;max-width:none!important}
+.search-form input{font-size:var(--da-companion-font-size,14px)!important;padding:3px 0!important}
+.search-form button{padding:3px 8px!important;font-size:var(--da-companion-font-size,14px)!important}
+.search-options{margin:3px 0!important;gap:8px!important;flex-direction:row!important;align-items:center!important}
+.search-options label{min-width:0!important}
+.search-options label>span{display:none}
+.search-options select{height:28px!important;font-size:var(--da-companion-font-size,14px)!important;padding-block:2px!important}
+.search-options p{font-size:var(--da-companion-font-size,14px)!important;margin:0!important}
+.search-results{margin:4px 0!important;max-width:none!important}
+.search-results li{padding:6px 0!important}
+.search-results a span{font-size:var(--da-companion-font-size,14px)!important}
+.search-results h2{font-size:var(--da-companion-font-size,14px)!important;margin:2px 0 4px!important}
+.search-results p{font-size:var(--da-companion-font-size,14px)!important;line-height:1.4!important}
+.section-links{display:none!important}
+.article-layout,.calculator-layout{display:block!important}
+.article-layout article{max-width:none!important;width:100%!important;min-width:0!important;margin:0!important}
+.article-header{margin:0 0 8px!important;padding:0!important}
+.article-header .eyebrow{font-size:var(--da-companion-font-size,14px)!important}
+.title-row{gap:8px!important;margin:2px 0!important}
+.title-row .entry-icon{width:32px!important;height:32px!important;object-fit:contain}
+h1{font-size:var(--da-companion-font-size,14px)!important;line-height:1.2!important;margin:4px 0!important}
+h2{font-size:var(--da-companion-font-size,14px)!important;margin:4px 0 6px!important}
+h3{font-size:var(--da-companion-font-size,14px)!important;margin:4px 0!important}
+.article-lead{font-size:var(--da-companion-font-size,14px)!important;line-height:1.45!important;margin:6px 0!important}
+.entry-badges{gap:4px!important;margin:4px 0!important}
+.badge{font-size:var(--da-companion-font-size,14px)!important;padding:1px 5px!important}
+.article-section{margin:10px 0!important;padding:8px 0 0!important}
+.requirement-strip{margin:6px 0!important;padding:5px!important;gap:8px!important;font-size:var(--da-companion-font-size,14px)!important;flex-wrap:wrap!important}
+.facts-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;margin:0!important}
+.facts-grid>div{padding:6px!important;min-width:0!important}
+.facts-grid dt{font-size:var(--da-companion-font-size,14px)!important}.facts-grid dd{font-size:var(--da-companion-font-size,14px)!important}
+.related-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important}
+.related-grid a{padding:6px!important;font-size:var(--da-companion-font-size,14px)!important}
+.notice,.calculator-inputs,.calculator-result{padding:8px!important;margin:6px 0!important;font-size:var(--da-companion-font-size,14px)!important}
+.guide-steps li,.article-section p{font-size:var(--da-companion-font-size,14px)!important;line-height:1.5!important}
+.source-detail{padding:6px!important;margin:5px 0!important;font-size:var(--da-companion-font-size,14px)!important}
+.rank-record,.table-block{margin:8px 0!important;padding:6px 0!important}
+.map-figure img{max-width:100%!important;height:auto!important}
+.table-wrap,[data-slot=table-container]{max-width:100%!important;overflow-x:auto!important}
+/* Compact game HUD leaves a very short dock: keep the search field reachable;
+   the filter and content remain below it in the same scrollable pane. */
+@media(max-height:100px){main.page-container{padding:3px 5px!important}.search-form{margin:0!important}.search-form input{padding:1px 0!important}}
+@media(max-width:370px){.facts-grid,.related-grid{grid-template-columns:minmax(0,1fr)!important}.search-options{gap:4px!important}}
+
+/* DA in-game skin. Textures and glyph outlines are generated locally from
+   _nbk_s.spf and da.lft. These overrides never affect the standalone site. */
+:root,:root.dark,:root.light{
+ --background:#493b2c;--foreground:#e3d2ad;--card:#382919;--card-foreground:#e3d2ad;
+ --popover:#392919;--popover-foreground:#e3d2ad;--primary:#a9783f;--primary-foreground:#fff0cd;
+ --muted:#4b3927;--muted-foreground:#baa17c;--border:#8c6640;--input:#8c6640;--ring:#d3a568;
+ --brass:#daa251;--sidebar:#382919;--sidebar-foreground:#e3d2ad;--sidebar-accent:#64452a;
+ color-scheme:dark;
+}
+html,body{background:#493b2c var(--da-grain) repeat!important;color:#e3d2ad!important;font-size:var(--da-companion-font-size,14px)!important}
+body,button,input,select,textarea,h1,h2,h3,h4,p,span,a,dt,dd,small,strong,summary{
+ font-family:"DA Local Bitmap","Courier New",monospace!important;font-weight:400!important;
+ letter-spacing:0!important;text-shadow:1px 1px #241b12;
+}
+body{line-height:1.25!important}
+main.page-container{padding:3px 4px!important;background:transparent!important}
+a{color:#e9c28a}a:hover{color:#fff3d0;text-decoration:underline}
+.search-form{border:5px solid transparent!important;border-image:var(--da-input-frame) 5 fill stretch!important;
+ padding:0 3px!important;border-radius:0!important;box-shadow:none!important;gap:3px!important;margin:0 0 2px!important}
+.search-form svg{display:none!important}
+.search-form input{font-size:var(--da-companion-font-size,14px)!important;line-height:17px!important;padding:2px 0!important;color:#e8d8b8!important}
+.search-form input::placeholder{color:#b49b76!important;opacity:1}
+.search-form:focus-within{outline:1px solid #d9b479!important;outline-offset:-3px!important}
+.search-form button,.button-primary{font-size:var(--da-companion-font-size,14px)!important;padding:1px 5px!important;background:#5a3e26 var(--da-grain)!important;
+ border:2px ridge #b38a58!important;color:#e6c99b!important;border-radius:0!important;box-shadow:1px 1px #25190f!important}
+.search-options{margin:2px 0!important;gap:6px!important}
+.search-options select{height:24px!important;font-size:var(--da-companion-font-size,14px)!important;line-height:17px!important;background:#3a2b1c!important;color:#dfc69a!important;border:2px ridge #a57c4d!important;border-radius:0!important}
+.search-options p{font-size:var(--da-companion-font-size,14px)!important;color:#c3a779!important}
+.search-results li{border-bottom:1px solid #83613d!important;padding:5px 1px!important}
+.search-results a span,.article-header .eyebrow{font-size:var(--da-companion-font-size,14px)!important;color:#d9a155!important;text-transform:none!important}
+.search-results h2,h2,h3{font-size:var(--da-companion-font-size,14px)!important;color:#fff0ca!important;margin:2px 0 4px!important}
+.search-results p,.article-lead,.guide-steps li,.article-section p{font-size:var(--da-companion-font-size,14px)!important;line-height:1.25!important;color:#d4be98!important}
+h1{font-size:var(--da-companion-font-size,14px)!important;line-height:1.2!important;color:#f3deb8!important}
+.facts-grid>div,.related-grid a,.notice,.requirement-strip,.calculator-inputs,.calculator-result,.source-detail{
+ background:#43321f var(--da-grain)!important;border-color:#9c7347!important;border-radius:0!important}
+.facts-grid dt,.facts-grid dd,.badge,.related-grid a,.source-detail{font-size:var(--da-companion-font-size,14px)!important}
+.badge{background:#392919!important;border:1px solid #a0794b!important;border-radius:0!important;color:#dbb579!important}
+.article-section{border-color:#9a764d!important;margin:7px 0!important;padding-top:5px!important}
+::-webkit-scrollbar{width:12px;height:12px}
+::-webkit-scrollbar-track{background:#2d2116;border:1px solid #a77c4b}
+::-webkit-scrollbar-thumb{background:#7a5634;border:2px ridge #c19a69}
+::-webkit-scrollbar-corner{background:#392919}
+@media(max-height:65px){main.page-container{padding:1px 2px!important}.search-form{border-width:4px!important}.search-form input{padding:0!important}}
+
+/* The corner is a reference panel: keep each short fact on one line, and
+   pack facts by their actual width instead of allocating large equal cards.
+   Long acquisition/material text wraps in full beneath the quick stats. */
+html{scroll-padding-top:4px!important}
+.article-header{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:2px 5px!important;margin:0 0 3px!important}
+.article-header .eyebrow{display:none!important}
+.title-row{display:inline-flex!important;align-items:center!important;gap:4px!important;margin:0!important;max-width:100%!important}
+.title-row .entry-icon{width:20px!important;height:20px!important}
+h1{font-size:var(--da-companion-font-size,14px)!important;line-height:18px!important;margin:0!important;text-wrap:wrap!important}
+.entry-badges{display:contents!important}
+.badge{padding:0 3px!important;line-height:17px!important}
+.article-lead{flex-basis:100%!important;margin:1px 0 2px!important;line-height:17px!important}
+.article-lead[data-boilerplate="true"]{display:none!important}
+.article-header .notice{flex-basis:100%!important;margin:1px 0!important;padding:2px 4px!important}
+.requirement-strip{gap:2px 8px!important;margin:1px 0 3px!important;padding:1px 3px!important;line-height:17px!important;border-width:1px!important}
+.article-section{margin:4px 0!important;padding-top:3px!important;scroll-margin-top:4px!important}
+.article-section>h2,.rank-record>h3{margin:0 0 2px!important;line-height:17px!important}
+.facts-grid{display:flex!important;flex-wrap:wrap!important;gap:0!important;padding:0!important;margin:0!important}
+.facts-grid>div{display:flex!important;flex:0 1 auto!important;align-items:baseline!important;gap:4px!important;
+ padding:1px 7px 1px 0!important;margin:0 7px 1px 0!important;min-width:0!important;max-width:100%!important;
+ background:none!important;border:0!important;border-right:1px solid #8a6541!important;line-height:17px!important;box-shadow:none!important}
+.facts-grid>div.fact-long{flex-basis:100%!important;order:1!important;margin-right:0!important;padding-right:0!important;border-right:0!important;flex-wrap:wrap!important;gap:0 5px!important}
+.facts-grid dt,.facts-grid dd{display:inline!important;margin:0!important;padding:0!important;min-width:0!important;font-size:var(--da-companion-font-size,14px)!important;line-height:17px!important}
+.facts-grid dt{flex-shrink:0!important;color:#c5a57b!important;white-space:nowrap!important}
+.facts-grid dd{color:#fff0ca!important;white-space:normal!important;overflow-wrap:anywhere!important}
+.facts-grid dt:after{content:":"}
+.facts-grid dt:has(.fact-label-compact) .fact-label-full,
+.facts-grid dd:has(.fact-value-compact) .fact-value-full{display:none!important}
+.facts-grid .fact-label-compact,.facts-grid .fact-value-compact{display:inline!important}
+.fact-label-compact{text-decoration:none!important;cursor:help}
+.rank-record{margin:4px 0!important;padding:3px 0!important}
+.rank-record>p{margin:1px 0 3px!important;line-height:17px!important}
+.article-section p,.guide-steps li{margin-bottom:4px!important;line-height:17px!important}
+.guide-steps{margin:3px 0!important;padding:0!important}
+.guide-steps li{padding:0 0 2px 28px!important}
+.guide-steps li:before{width:22px!important;left:0!important;top:0!important;padding:0!important;border:0!important;font-family:"DA Local Bitmap","Courier New",monospace!important;font-size:var(--da-companion-font-size,14px)!important;line-height:17px!important}
+.search-options label:first-child{flex:0 1 145px!important}
+.search-options .search-class{flex:0 1 130px!important}
+.search-options label [data-slot=native-select-wrapper]{width:100%!important}
+.search-options select{max-width:100%!important;width:100%!important}
+.search-options>button{white-space:nowrap!important}
+.search-options>p:empty{display:none!important}
+.related-grid{display:flex!important;flex-wrap:wrap!important;gap:2px 6px!important}
+.related-grid a{display:inline-flex!important;align-items:baseline!important;gap:5px!important;padding:2px 4px!important;line-height:17px!important}
+.related-grid a small{display:inline!important;margin:0!important;font-size:var(--da-companion-font-size,14px)!important;color:#bda17a!important}
+.notice,.source-detail,.table-block{padding:3px 4px!important;margin:3px 0!important}
+.source-detail summary{padding:0!important;line-height:17px!important}
+.reference-table{margin:3px 0!important;max-width:100%!important;overflow-x:auto!important}
+.reference-table th,.reference-table td{padding:3px 5px!important;font-size:var(--da-companion-font-size,14px)!important;line-height:17px!important;white-space:normal!important}
+.source-list{margin:3px 0!important;padding-left:15px!important;font-size:var(--da-companion-font-size,14px)!important}
+.source-list li{margin-bottom:4px!important}
+.search-results li{padding:3px 1px!important}
+.search-results a{display:flex!important;flex-wrap:wrap!important;align-items:baseline!important;gap:3px 7px!important}
+.search-results a h2{margin:0!important;line-height:17px!important;order:-1!important}
+.search-results a span{color:#bda17a!important;font-size:var(--da-companion-font-size,14px)!important;line-height:17px!important}
+.search-results p{display:-webkit-box!important;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden!important;margin:1px 0 0!important;line-height:17px!important}
+@media(max-width:300px){.facts-grid>div{margin-right:5px!important;padding-right:5px!important}.facts-grid dt{flex-shrink:1!important;white-space:normal!important}}
+/* A rank's name and level share a row; its numbers precede longer prose.
+   Keep every description available below the facts. A single rank already
+   supplies a heading, so it does not need an extra "Ability ranks" row. */
+#ranks:has(>.rank-record:only-of-type)>h2{display:none!important}
+.rank-record{display:flex!important;flex-wrap:wrap!important;align-items:baseline!important;gap:0 8px!important}
+.rank-record>h3,.rank-record>p.muted{order:0!important;margin:0 0 2px!important}
+.rank-record>.facts-grid{order:1!important;flex-basis:100%!important}
+.rank-record>p:not(.muted),.rank-record>.source-detail{order:2!important;flex-basis:100%!important}
+.search-browse{display:flex!important;flex-wrap:wrap!important;gap:4px!important;margin:2px 0!important}.browse-results li{padding:2px 1px!important}.search-options{flex-wrap:wrap!important}
+
+/* Shared with the native Macro, Map and Hotkeys panels. Game scaling never
+   changes companion typography; color and spacing distinguish headings. */
+body *{font-size:var(--da-companion-font-size,14px)!important}
+.search-results a{display:flex!important;align-items:center!important;flex-wrap:nowrap!important;gap:5px!important}
+.search-result-icon{display:flex!important;flex:0 0 20px!important;width:20px!important;height:20px!important;align-items:center!important;justify-content:center!important;color:#ddb473!important}
+.search-result-icon img{width:20px!important;height:20px!important;object-fit:contain!important;image-rendering:pixelated!important}
+.search-result-icon svg{width:15px!important;height:15px!important}
+.search-result-copy{display:flex!important;min-width:0!important;flex:1!important;flex-wrap:wrap!important;align-items:baseline!important;gap:2px 7px!important}
+
+.skill-list-page .skill-planner{grid-template-columns:1fr!important;gap:8px!important;margin-top:6px!important}.skill-list-page .skill-filters{gap:4px!important}.skill-list-page .skill-filters label{flex-basis:115px!important}.skill-list-page .skill-choice{padding:3px!important}.skill-list-page .skill-choice small{line-height:1.2!important}.skill-list-page .skill-choices{max-height:230px!important}.skill-list-page .skill-sheet-ability{padding-top:5px!important;margin-top:7px!important}.skill-list-page .skill-sheet-actions{gap:4px!important}.rank-record>.learning-place{order:1!important;flex:1 1 auto!important}.rank-record>.add-skill-list{order:1!important;flex:0 0 auto!important}.skill-sheet td,.skill-sheet th{padding:2px 4px!important}
+@media print{.no-print,.topbar,.library-sidebar{display:none!important}.skill-list-page,.skill-list-page *{color:#000!important;background:#fff!important;text-shadow:none!important}.skill-list-page .skill-sheet-ability{break-inside:avoid}}

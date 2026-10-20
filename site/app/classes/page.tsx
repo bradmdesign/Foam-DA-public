@@ -1,0 +1,4 @@
+import {ClassDirectory} from '@/components/class-directory';
+import {ProgressionChoices} from '@/components/progression-choices';
+export const metadata={title:'Classes',description:'Class reference pages, with Medenian paths, abilities, and equipment arranged under their parent class.'};
+export default function ClassesPage(){return <main id="main" className="page-container"><nav className="breadcrumbs" aria-label="Breadcrumb"><a href="/">Library</a><span>/</span><span>Classes</span></nav><header className="catalog-intro"><div className="eyebrow">Find your class</div><h1>Classes & their paths</h1><p>Browse abilities and equipment from low level upward. Each Medenian path stays with its parent class.</p></header><ClassDirectory/><section className="class-progression"><h2>Choose how you progress</h2><ProgressionChoices/></section></main>}

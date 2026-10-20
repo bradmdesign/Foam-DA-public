@@ -1,0 +1,9 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import zlib from 'node:zlib';
+const root=path.resolve('dist/client');
+function* walk(dir){for(const d of fs.readdirSync(dir,{withFileTypes:true})){const p=path.join(dir,d.name);if(d.isDirectory())yield* walk(p);else yield p}}
+const files=[...walk(root)],paths=new Set(files.map(p=>p.slice(root.length).replaceAll('\\','/').replace(/\.gz$/,''))),html=files.filter(p=>p.endsWith('.html')||p.endsWith('.html.gz')&&!fs.existsSync(p.slice(0,-3))),broken=new Map(),remote=[],empty=[],missingTitle=[];let checked=0;
+function exists(url){let p;try{p=decodeURIComponent(new URL(url,'http://local').pathname)}catch{return false}return paths.has(p)||paths.has(p.replace(/\/$/,'')+'.html')||paths.has(p.replace(/\/$/,'')+'/index.html')}
+for(const file of html){const bytes=fs.readFileSync(file),text=(file.endsWith('.gz')?zlib.gunzipSync(bytes):bytes).toString('utf8'),relative=file.slice(root.length).replaceAll('\\','/').replace(/\.gz$/,'');if(!/<h1\b/.test(text)&&!relative.includes('404'))empty.push(relative);if(!/<title>[^<]+<\/title>/.test(text))missingTitle.push(relative);for(const m of text.matchAll(/\b(href|src)="([^"#]+)"/g)){const [_,type,url]=m;if(url.startsWith('/')&&!url.startsWith('//')){checked++;if(!exists(url)&&!url.includes('.rsc'))broken.set(url,relative)}else if(type==='src'&&/^https?:|^\/\//.test(url))remote.push({page:relative,url})}}
+const report={checkedAt:new Date().toISOString(),htmlPages:html.length,internalLinksAndAssetsChecked:checked,broken:[...broken].map(([url,page])=>({url,page})),remoteRuntimeAssets:remote,emptyPages:empty,missingTitle};fs.writeFileSync('research/export-audit.json',JSON.stringify(report,null,2));console.log(JSON.stringify({...report,broken:report.broken.slice(0,15)}));if(broken.size||remote.length||empty.length||missingTitle.length)process.exitCode=1;

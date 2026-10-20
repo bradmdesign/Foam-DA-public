@@ -1,0 +1,4 @@
+pefile==2024.8.26
+Pillow>=10
+fonttools>=4
+capstone>=5

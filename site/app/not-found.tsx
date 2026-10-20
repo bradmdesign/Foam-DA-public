@@ -1,0 +1,1 @@
+export default function NotFound(){return <main id="main" className="page-container"><div className="eyebrow">Record not found</div><h1>This page is outside the collection.</h1><p>The address may have changed, or this source record has not been imported.</p><a href="/search/">Search the library</a></main>}
