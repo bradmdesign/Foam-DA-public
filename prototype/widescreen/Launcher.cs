@@ -42,6 +42,9 @@ internal static class Program
     internal static readonly string Report = Path.Combine(Root, "build", "runtime-validation.json");
     internal static readonly JavaScriptSerializer Json = new JavaScriptSerializer();
     static FileStream installationLease;
+    static bool uiConfigured;
+    internal static void ConfigureUi(){if(uiConfigured)return;Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);uiConfigured=true;}
+
 
     [STAThread]
     static int Main(string[] args)
@@ -50,8 +53,8 @@ internal static class Program
         {
             if(HostUpdater.RecoverBeforeLaunch())return 0;
             if(args.Length>0&&args[0]=="--updater-ui-checks"){
-                Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);Directory.CreateDirectory(Path.Combine(Root,"build"));
-                using(var owner=new Form())using(var updater=new HostUpdater(owner,message=>{},()=>{})){updater.LastStatus="Updates are ready. Library and ads use separate signed releases.";updater.Show(Path.Combine(Root,"build","updater-ui-check.png"));}
+                ConfigureUi();Directory.CreateDirectory(Path.Combine(Root,"build"));
+                using(var owner=new Form())using(var updater=new HostUpdater(owner,message=>{},()=>{})){updater.LastStatus="Foam DA is up to date. Automatic updates are always on.";updater.Show(Path.Combine(Root,"build","updater-ui-check.png"));}
                 return 0;
             }
             if(InstallRoot!=null){
@@ -61,7 +64,7 @@ internal static class Program
             }
             if(args.Length>0&&args[0]=="--client-install-checks"){GameInstallationChecks.Run(args.Length>1?args[1]:GameInstallation.DefaultFolder);return 0;}
             if(args.Length>0&&args[0]=="--library")
-            {Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);Application.Run(new GameHostForm(false,true));return 0;}
+            {ConfigureUi();if(!HostUpdater.RequireCurrentBeforeLaunch())return 1;Application.Run(new GameHostForm(false,true));return 0;}
             if (args.Length > 0 && args[0] == "--open-host")
             {
                 LaunchInteractive(Application.ExecutablePath, " --host");
@@ -150,6 +153,7 @@ internal static class Program
             }
             if (args.Length > 0 && args[0] == "--launch")
             {
+                if(!HostUpdater.RequireCurrentBeforeLaunch())return 1;
                 Launch();
                 return 0;
             }
@@ -168,8 +172,8 @@ internal static class Program
                 ApplyPreparedClientUpdate(true);
                 return 0;
             }
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
+            ConfigureUi();
+            if(!HostUpdater.RequireCurrentBeforeLaunch())return 1;
             bool openHost=(args.Length > 0 && args[0] == "--host") ||
                 args.Length==0;
             Application.Run(openHost ? (Form)new GameHostForm() : new LauncherForm());

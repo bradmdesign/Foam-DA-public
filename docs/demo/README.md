@@ -4,9 +4,11 @@
 
 ## Expanded game canvas
 
-An actual 1088 × 640 game frame captured during development. The original bottom controls remain available; the host places its Library and tools in the unused corner. Server visibility limits still apply.
+Choose a window size that suits your display, including ultrawide, 1920 × 1080, and smaller windows. The game view scales inside the host, with the original controls and the Library available together.
 
-![Expanded Dark Ages game canvas](widescreen.png)
+![Game and bottom-right Library](game-library-town.png)
+
+![Game with skill planning in the bottom-right Library](game-library.png)
 
 ## Local reference Library
 
@@ -16,7 +18,7 @@ The built Library using the same compact skin as the game's companion panel. Rec
 
 ## Automatic updates
 
-The actual native settings screen. Library records and optional sponsored messages update separately; app replacement asks for a host restart and reattaches running games.
+Updates run automatically. A pending app update must finish before the host opens. Library records update independently, and the host reattaches running games after updating. Offline use remains available when no update is pending.
 
 ![Signed update settings](updates.png)
 

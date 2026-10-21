@@ -6,13 +6,11 @@ A Windows companion and offline reference library for Dark Ages. Foam DA combine
 
 [**Download the Windows installer**](https://github.com/bradmdesign/Foam-DA-public/releases/latest) · [**View the screenshot demo**](docs/demo/README.md)
 
-Run **Foam-DA-Setup-0.3.0.exe** and choose a writable folder. The installer includes the complete offline Library, search, icons, local runtime, Microsoft WebView2 prerequisite and signed automatic updater. You do not need Python, Node, Git, a GitHub account or the .NET SDK. Supported 64-bit Windows 10/11 and a separately installed Dark Ages 7.41 client are required.
+Run the Windows installer and choose a writable folder. The installer includes the complete offline Library, search, icons, local runtime, Microsoft WebView2 prerequisite and signed automatic updater. You do not need Python, Node, Git, a GitHub account or the .NET SDK. Supported 64-bit Windows 10/11 and a separately installed Dark Ages 7.41 client are required.
 
 On first launch, choose your installed Dark Ages folder. The full game, personal profiles, saved accounts and signing secrets are excluded from downloads. The installer release identifies its exact source commit and includes a signed per-file inventory; it is built from this repository's source. [Installer details](installer/README.md).
 
-![Expanded game view](docs/demo/widescreen.png)
-
-![The compact offline Library](docs/demo/library.png)
+![Game with the bottom-right Library](docs/demo/game-library-town.png)
 
 ## Build and run
 
@@ -49,9 +47,11 @@ After building the offline Library, run `powershell -NoProfile -ExecutionPolicy 
 
 For a small update to an **existing Foam DA installation**, use `Package.ps1 -HostUpdate`. Extract that update beside the existing `Foam-DA.exe`; it retains the existing Library and its server configuration. This update is not a complete standalone Library package.
 
-## Updates and sponsored messages
+## Automatic updates
 
-Foam DA now has **Settings → Updates** for signed background updates. Library records, sponsored messages and app files are separate components. Records and ads can change without restarting the game; app installation is an explicit host restart. Offline content remains usable when the update source is unavailable. The public signed feed is hosted in this repository’s [update release](https://github.com/bradmdesign/Foam-DA-public/releases/tag/updates). See [publisher instructions](publisher/README.md) for changing records, ads and app versions. Initial bundled versions are recorded so a fresh installation does not download the same Library again.
+Foam DA checks for signed updates automatically. A pending app update must be installed before the host opens. If the update source is unreachable and no update is pending, the installed app remains available offline. Library content updates independently, and running game sessions stay open during a host replacement. See [publisher instructions](publisher/README.md) for publishing records and app versions.
+
+Resize the host to suit your display, including ultrawide, 1920 × 1080, and smaller windows. The game view scales within the host while the original controls and bottom-right Library remain available.
 
 ## Source layout
 

@@ -6,8 +6,7 @@
     document.getElementById('foam-sponsored')?.remove();
     if(!campaigns.length)return;
     const c=campaigns[adIndex++%campaigns.length],panel=document.createElement('aside');
-    panel.id='foam-sponsored';panel.className='foam-sponsored';panel.dataset.pagefindIgnore='';panel.setAttribute('aria-label','Sponsored message');
-    const label=document.createElement('small');label.textContent='Sponsored';panel.append(label);
+    panel.id='foam-sponsored';panel.className='foam-sponsored';panel.dataset.pagefindIgnore='';panel.setAttribute('aria-label','Community message');
     const content=document.createElement(c.href?'a':'span');
     if(c.href){content.href='/_foam/go/'+encodeURIComponent(c.id);content.target='_blank';content.rel='sponsored noopener noreferrer';}
     if(c.image){const img=document.createElement('img');img.src='/_foam/ad-images/'+c.image;img.alt='';content.append(img)}

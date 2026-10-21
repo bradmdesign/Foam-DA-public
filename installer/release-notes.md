@@ -1,10 +1,10 @@
 ## Install Foam DA
 
-Download **Foam-DA-Setup-0.3.0.exe**, run it and choose a new writable folder. On first launch, select your separately installed Dark Ages 7.41 folder.
+Download **Foam-DA-Setup-0.3.1.exe**, run it and choose a new writable folder. On first launch, select your separately installed Dark Ages 7.41 folder.
 
 - Complete offline Library, search, record icons and sprites.
 - Expanded game view, character tabs, minimap, macros, hotkeys and screenshots.
-- Signed automatic updates for the app, Library and optional sponsored messages.
+- Mandatory signed app updates before the host opens, with automatic Library updates.
 - Bundled local Node runtime and Microsoft-signed WebView2 prerequisite. No Python, Node, Git, GitHub account or .NET SDK installation needed.
 - No full game, user profiles, saved accounts, screenshots, browser sessions or private signing keys included.
 

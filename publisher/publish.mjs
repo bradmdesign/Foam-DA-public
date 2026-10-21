@@ -7,7 +7,7 @@ import {execFileSync} from 'node:child_process';
 import {allowed, address, hash, fileHash, writePack, extractPack, atomicJson, readJson, validateFeed, validateManifest, validateCampaigns, noLinks, verifyFeed} from '../prototype/widescreen/updater/core.mjs';
 
 const here=path.dirname(fileURLToPath(import.meta.url)), root=path.dirname(here), host=path.join(root,'prototype/widescreen');
-const [component,version,revisionText,requestedUrl]=process.argv.slice(2);
+const [component,version,revisionText,requestedUrl,hostExecutable]=process.argv.slice(2);
 const revision=Number(revisionText), signer=path.join(here,'build/Foam-Publisher.exe');
 const key=path.join(process.env.LOCALAPPDATA,'Foam-DA/Publisher/signing-key.dpapi'), channelFile=path.join(host,'updater/channel.json');
 try {
@@ -44,7 +44,9 @@ try {
     await add(path.join(here,'ads/campaigns.json'),'campaigns.json');
     for(const image of new Set(ads.campaigns.map(c=>c.image).filter(Boolean))) { await add(path.join(here,'ads',image),image); if(files.at(-1).bytes>2*1024*1024) throw Error('Ad images must be under 2 MB.'); }
   } else {
-    for(const name of ['Foam-DA.exe','Microsoft.Web.WebView2.Core.dll','Microsoft.Web.WebView2.WinForms.dll','WebView2Loader.dll','host-dock.css']) await add(path.join(host,name),name);
+    const candidate=hostExecutable?path.resolve(hostExecutable):path.join(host,'Foam-DA.exe');
+    if(hostExecutable&&!candidate.startsWith(path.join(host,'build/staged')+path.sep))throw Error('A candidate host must be inside build/staged.');
+    for(const name of ['Foam-DA.exe','Microsoft.Web.WebView2.Core.dll','Microsoft.Web.WebView2.WinForms.dll','WebView2Loader.dll','host-dock.css']) await add(name==='Foam-DA.exe'?candidate:path.join(host,name),name);
     for(const entry of await fsp.readdir(path.join(host,'theme'))) if(allowed('app','theme/'+entry)) await add(path.join(host,'theme',entry),'theme/'+entry);
     await walk(path.join(host,'client-patches'),'client-patches/');
     for(const name of ['core.mjs','worker.mjs']) await add(path.join(host,'updater',name),'updater/'+name);
