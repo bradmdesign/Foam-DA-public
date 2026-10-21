@@ -2,6 +2,8 @@
 
 [Download the Windows installer](https://github.com/bradmdesign/Foam-DA-public/releases/latest) · [Project source](../../README.md)
 
+**The EXE is unsigned**, so Windows may warn that it is from an unknown publisher. If you prefer, [download and extract the source, then follow the build steps](../../README.md#build-and-run).
+
 ## Expanded game canvas
 
 Choose a window size that suits your display, including ultrawide, 1920 × 1080, and smaller windows. The game view scales inside the host, with the original controls and the Library available together.

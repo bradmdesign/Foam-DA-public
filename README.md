@@ -6,6 +6,8 @@ A Windows companion that brings Dark Ages reference information into your client
 
 [**Download the Windows installer**](https://github.com/bradmdesign/Foam-DA-public/releases/latest) · [**View the screenshot demo**](docs/demo/README.md)
 
+**The EXE is unsigned**, so Windows may warn that it is from an unknown publisher. If you prefer to build it yourself, [download and extract the source](#build-and-run) and follow the steps below.
+
 Run the Windows installer and choose a writable folder. The installer includes the complete offline Library, search, icons, local runtime, Microsoft WebView2 prerequisite and signed automatic updater. You do not need Python, Node, Git, a GitHub account or the .NET SDK. Supported 64-bit Windows 10/11 and a separately installed Dark Ages 7.41 client are required.
 
 On first launch, choose your installed Dark Ages folder. The full game, personal profiles, saved accounts and signing secrets are excluded from downloads. The installer release identifies its exact source commit and includes a signed per-file inventory; it is built from this repository's source. [Installer details](installer/README.md).
@@ -25,6 +27,8 @@ Nearly every piece of Dark Ages information you would otherwise look up on a web
 Train selected skills and spells, or repeat your own key sequence at a chosen interval with Simple mode. Assail can press Space every half-second, and macros can keep running across game tabs. Assign shortcuts such as **Shift+1** or **Alt+2** to key combinations with timed pauses. Both panels are built into the client, reducing the need for extra programs. [See examples in the demo](docs/demo/README.md#built-in-macros-and-hotkeys).
 
 ## Build and run
+
+Download the [source ZIP](https://github.com/bradmdesign/Foam-DA-public/archive/refs/heads/main.zip), extract it to a folder, then follow these steps.
 
 Building from source requires Windows, Node.js 24 or newer, Python 3.11 or newer, the .NET Framework 4.x compiler, and Microsoft Edge WebView2 Runtime. Install Dark Ages separately. A packaged Lite build needs the installed game and WebView2; it does not need Python or the compiler.
 

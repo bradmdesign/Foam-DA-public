@@ -2,6 +2,8 @@
 
 Players download **Foam-DA-Setup-0.3.1.exe** from [GitHub Releases](https://github.com/bradmdesign/Foam-DA-public/releases/latest). No GitHub account, Python, Node, Git or .NET SDK is needed. Supported 64-bit Windows 10/11 provides .NET Framework; the installer includes the offline Microsoft WebView2 prerequisite and uses it only when needed.
 
+**The EXE is unsigned**, so Windows may warn that it is from an unknown publisher. If you prefer, [download and extract the source, then follow the build steps](../README.md#build-and-run).
+
 Choose a new empty writable folder. Setup verifies the publisher-signed inventory and every file, stages installation beside the destination, and creates an optional desktop shortcut. On first launch, choose the separately installed Dark Ages 7.41 folder. The game itself is not included. Existing installations receive later changes through **Settings → Updates**.
 
 The complete offline Library, icons, search index, local Node runtime, desktop host, compact game recipes, updater and dependency notices are included. No user accounts, screenshots, saved settings, sessions, browser profiles, private keys or full game archives are packaged. Screenshots are saved locally beside the app.
