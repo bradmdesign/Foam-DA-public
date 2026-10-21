@@ -48,11 +48,18 @@ internal static class Program
     {
         try
         {
+            if(HostUpdater.RecoverBeforeLaunch())return 0;
+            if(args.Length>0&&args[0]=="--updater-ui-checks"){
+                Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);Directory.CreateDirectory(Path.Combine(Root,"build"));
+                using(var owner=new Form())using(var updater=new HostUpdater(owner,message=>{},()=>{})){updater.LastStatus="Updates are ready. Library and ads use separate signed releases.";updater.Show(Path.Combine(Root,"build","updater-ui-check.png"));}
+                return 0;
+            }
             if(InstallRoot!=null){
                 try{installationLease=new FileStream(Path.Combine(InstallRoot,"maintenance.lock"),FileMode.OpenOrCreate,FileAccess.ReadWrite,FileShare.Read);}
                 catch(IOException){MessageBox.Show("An installation update is running, or this edition is already open. Try again after it finishes.","Foam DA");return 1;}
                 AppDomain.CurrentDomain.ProcessExit+=delegate{if(installationLease!=null)installationLease.Dispose();};
             }
+            if(args.Length>0&&args[0]=="--client-install-checks"){GameInstallationChecks.Run(args.Length>1?args[1]:GameInstallation.DefaultFolder);return 0;}
             if(args.Length>0&&args[0]=="--library")
             {Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);Application.Run(new GameHostForm(false,true));return 0;}
             if (args.Length > 0 && args[0] == "--open-host")
@@ -164,7 +171,7 @@ internal static class Program
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             bool openHost=(args.Length > 0 && args[0] == "--host") ||
-                (args.Length==0 && File.Exists(Path.Combine(Root,"portable-release.json")));
+                args.Length==0;
             Application.Run(openHost ? (Form)new GameHostForm() : new LauncherForm());
             return 0;
         }
@@ -220,12 +227,12 @@ internal static class Program
 
     internal static void Launch()
     {
-        Verify();
-        using (var running = FindTest())
-            if (running != null) throw new InvalidOperationException("The isolated test client is already running.");
-        uint id = LaunchInteractive(Game, "");
+        Application.EnableVisualStyles();
+        if(!GameInstallation.Choose(null))return;
+        string game=GameSessions.Prepare("960x600");
+        uint id = LaunchInteractive(game, "");
         File.WriteAllText(Path.Combine(Root, "build", "last-launch.json"),
-            Json.Serialize(new { process_id = id, launched_utc = DateTime.UtcNow.ToString("o"), path = Game }));
+            Json.Serialize(new { process_id = id, launched_utc = DateTime.UtcNow.ToString("o"), path = game }));
     }
 
     internal static uint LaunchInteractive(string application, string arguments)

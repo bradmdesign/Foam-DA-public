@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "feed_url": "https://github.com/bradmdesign/Foam-DA-public/releases/download/updates/feed.json",
+  "public_key": "-----BEGIN PUBLIC KEY-----\nMIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEA4ojuJe8ynJpvdfP2aYj1\nUNNiuzV4rG1hQPPLJZ5EFcrSmAbpqTcePVSx3m125QcVm+KvH0LM8f2/qzej0K95\n2So0bh5zZ7bX2jlbu6Cfq09V8N9X5ixXFG7Zg+joI3eYio7pYLDsWGcJVUfb5S+6\nLPP6bmZakbZWO0fRIueqlAE456nMnlaD69N4/3QkpAvxqYXSYr3UddWES3sO0DQa\nXzVBGcKyVGkvmiQxddbxM0ehQPbVS1YAUjhCJMgs0NMd3m8N7HRGfu0cRU/QCoqs\nrhZDaNDTDoYPJgZ2GnzFW9aDsryyqajIgmQc9SRx9d/pZP3gJdl2F3QJGSuke9C+\n6OeuavExaoj/NmM62Dz1QuUGAEs8TmMsxrfbCDvM6JX9VdJ9A+a8n4l0vhsfeoHk\n2LzGwZUAxMNcQKMAOC+/TRtG9iF/pXdZ5hRKbgedz/oWQGzWgeSCCO0v8x++KoqN\n4dpjwU5j1siVCi7/QkJWCxaWUqQ62Q8L0jEfdICgLl0xAgMBAAE=\n-----END PUBLIC KEY-----\n",
+  "automatic": true,
+  "installed_app": {
+    "revision": 3,
+    "version": "0.3.0",
+    "manifest": "app-3-0.3.0.json",
+    "manifest_sha256": "6c2d12d1a6ec8f27a9c7788cb95c7f4cc8d5a7307ab2de937f576ca777760040"
+  },
+  "installed_library": {
+    "revision": 1,
+    "version": "2026.10.21",
+    "manifest": "library-1-2026.10.21.json",
+    "manifest_sha256": "aaee3f877953a5c8966602bcdb1003100f71bad001ffe61e7e2c136f10388317"
+  }
+}

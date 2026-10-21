@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 // Each tab has its own writable game directory and mutex. Assets come only
-// from the isolated runtime; character folders and credentials are not copied.
+// from the selected local installation; character folders and credentials are not copied.
 internal static class GameSessions
 {
     internal static async Task CloseGame(int pid,IntPtr window,string expectedPath)
@@ -53,7 +53,7 @@ internal static class GameSessions
     {
         if(server==null)server=ServerProfile.Kru();
         if(profile!="960x600" && profile!="1088x640" && profile!="1152x680")throw new InvalidOperationException("Unknown viewport.");
-        Program.Verify();
+        string assets=GameInstallation.Validate(GameInstallation.Source);
         var occupied=new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach(var p in Running()){try{occupied.Add(p.MainModule.FileName);}finally{p.Dispose();}}
         string game=null;int slot=0;
@@ -63,7 +63,7 @@ internal static class GameSessions
         {string candidate=Path.Combine(Root,"game-"+n.ToString("0000"),"Darkages.exe");if(!occupied.Contains(candidate)&&(!Directory.Exists(Path.GetDirectoryName(candidate))||ServerProfile.KeyAt(candidate)==server.Key)){game=candidate;slot=n;break;}}
         if(game==null)throw new InvalidOperationException("All eight session folders are running or assigned to another server.");
         if(occupied.Contains(game))throw new InvalidOperationException("This game is still running.");
-        string source=Path.Combine(Program.Root,"build","profiles",profile),folder=Path.GetDirectoryName(game);
+        string source=GameInstallation.PrepareProfile(profile,assets),folder=Path.GetDirectoryName(game);
         var manifest=Program.Json.Deserialize<Dictionary<string,object>>(File.ReadAllText(Path.Combine(source,"manifest.json")));
         if((string)manifest["source_client_sha256"]!=StartupPatch.ClientSha256 ||
             Program.HashFile(Path.Combine(source,"Darkages.exe"))!=(string)manifest["test_client_sha256"] ||
@@ -75,20 +75,23 @@ internal static class GameSessions
         if(new DriveInfo(Path.GetPathRoot(folder)).AvailableFreeSpace<required)
             throw new IOException("This tab needs "+((required+1048575)/1048576)+" MB free, including working space.");
         bool created=!Directory.Exists(folder);
+        bool refreshAssets=true;
+        try{var previous=Program.Json.Deserialize<Dictionary<string,object>>(File.ReadAllText(Path.Combine(folder,"host-manifest.json")));object old;refreshAssets=!previous.TryGetValue("asset_source",out old)||!String.Equals(old as string,assets,StringComparison.OrdinalIgnoreCase);}catch{}
         Directory.CreateDirectory(folder);
         try
         {
         // Hold any old executable exclusively, so preparing cannot race a launch.
         using(var guard=new FileStream(game,FileMode.OpenOrCreate,FileAccess.ReadWrite,FileShare.None))
         {
-            foreach(var file in Directory.GetFiles(Path.Combine(Program.Root,"runtime")))
+            foreach(var assetName in GameInstallation.Catalog().assets)
             {
+                string file=Path.Combine(assets,assetName);
                 string ext=Path.GetExtension(file).ToLowerInvariant(),name=Path.GetFileName(file);
                 if(name.Equals("setoa.dat",StringComparison.OrdinalIgnoreCase))continue;
                 if(ext==".dat"||ext==".dll"||ext==".bmp"||ext==".tbl"||ext==".nfo")
-                {string target=Path.Combine(folder,name);if(!File.Exists(target))File.Copy(file,target);}
+                {string target=Path.Combine(folder,name);if(refreshAssets||!File.Exists(target)||new FileInfo(file).Length!=new FileInfo(target).Length||File.GetLastWriteTimeUtc(file)!=File.GetLastWriteTimeUtc(target))File.Copy(file,target,true);}
             }
-            foreach(string sub in new[]{"music","npc","maps","metafile"})CopyAssets(Path.Combine(Program.Root,"runtime",sub),Path.Combine(folder,sub));
+            foreach(string sub in new[]{"music","npc","maps","metafile"})CopyAssets(Path.Combine(assets,sub),Path.Combine(folder,sub),refreshAssets);
             File.Copy(Path.Combine(source,"setoa.dat"),Path.Combine(folder,"setoa.dat"),true);
             byte[] image=File.ReadAllBytes(Path.Combine(source,"Darkages.exe"));
             if(!server.Official)image=EndpointPatch.Apply(image);
@@ -96,7 +99,7 @@ internal static class GameSessions
             image=UniqueImage(image,slot);
             guard.SetLength(image.Length);guard.Position=0;guard.Write(image,0,image.Length);guard.Flush();
         }
-        manifest["test_client_sha256"]=Program.HashFile(game);manifest["session_slot"]=slot;
+        manifest["test_client_sha256"]=Program.HashFile(game);manifest["session_slot"]=slot;manifest["asset_source"]=assets;
         File.WriteAllText(Path.Combine(folder,"host-manifest.json"),Program.Json.Serialize(manifest));
         File.WriteAllText(Path.Combine(folder,"server-profile.json"),Program.Json.Serialize(server));
         return game;
@@ -113,9 +116,10 @@ internal static class GameSessions
     internal static long AdditionalBytes(string folder,string source)
     {
         long result=new FileInfo(Path.Combine(source,"setoa.dat")).Length+new FileInfo(Path.Combine(source,"Darkages.exe")).Length+512;
-        string runtime=Path.Combine(Program.Root,"runtime");
-        foreach(string file in Directory.GetFiles(runtime))
+        string runtime=GameInstallation.Source;
+        foreach(string assetName in GameInstallation.Catalog().assets)
         {
+            string file=Path.Combine(runtime,assetName);
             string name=Path.GetFileName(file),ext=Path.GetExtension(file).ToLowerInvariant();
             if(name.Equals("setoa.dat",StringComparison.OrdinalIgnoreCase))continue;
             if((ext==".dat"||ext==".dll"||ext==".bmp"||ext==".tbl"||ext==".nfo")&&!File.Exists(Path.Combine(folder,name)))result+=new FileInfo(file).Length;
@@ -128,11 +132,13 @@ internal static class GameSessions
         }
         return result;
     }
-    static void CopyAssets(string source,string target)
+    static void CopyAssets(string source,string target,bool refresh=false)
     {
-        if(!Directory.Exists(source))return;Directory.CreateDirectory(target);
-        foreach(string path in Directory.GetFiles(source)){string dst=Path.Combine(target,Path.GetFileName(path));if(!File.Exists(dst))File.Copy(path,dst);}
-        foreach(string path in Directory.GetDirectories(source))CopyAssets(path,Path.Combine(target,Path.GetFileName(path)));
+        if(!Directory.Exists(source))return;
+        if((File.GetAttributes(source)&FileAttributes.ReparsePoint)!=0)throw new IOException("A game asset folder is a link. Select the installation containing the original assets.");
+        Directory.CreateDirectory(target);
+        foreach(string path in Directory.GetFiles(source)){if((File.GetAttributes(path)&FileAttributes.ReparsePoint)!=0)throw new IOException("Linked game asset encountered.");string dst=Path.Combine(target,Path.GetFileName(path));if(refresh||!File.Exists(dst))File.Copy(path,dst,true);}
+        foreach(string path in Directory.GetDirectories(source))CopyAssets(path,Path.Combine(target,Path.GetFileName(path)),refresh);
     }
     internal static byte[] UniqueImage(byte[] image,int slot)
     {

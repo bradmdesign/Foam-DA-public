@@ -64,6 +64,7 @@ internal sealed class GameHostForm : Form
     string libraryBase;
     Uri lastSearch,lastReference;
     Process localServer;
+    readonly HostUpdater updater;
     DateTime lastReport = DateTime.MinValue;
     DateTime rateSample=DateTime.UtcNow;
     int rateFrames;
@@ -75,6 +76,7 @@ internal sealed class GameHostForm : Form
 
     internal GameHostForm(bool attachExisting=true,bool startLibrary=false,bool checkChrome=false)
     {
+        updater=new HostUpdater(this,message=>{status.Text=message;statusHoldUntil=DateTime.UtcNow.AddSeconds(15);ShowControls();},()=>Close());
         frames=new FramePresenter(this);macroTimer=new FramePresenter(this);
         previewOnly=!attachExisting;libraryOpen=startLibrary;Text = startLibrary?"Foam DA":previewOnly?"Foam DA · Preview":"Foam DA · Legit";
         AutoScaleMode = AutoScaleMode.None;
@@ -236,13 +238,13 @@ internal sealed class GameHostForm : Form
         stage.Resize+=delegate {ArrangeHost();};
         Resize+=delegate {ArrangeHost();};
         surface.GeometryChanged+=delegate {ArrangeDock();};
-        Shown+=async delegate {if(checkChrome)return;await InitializeLibrary(); ArrangeHost();if(attachExisting)await AttachExisting();};
+        Shown+=async delegate {if(checkChrome)return;await InitializeLibrary(); ArrangeHost();updater.Start();if(attachExisting){if(!startLibrary)GameInstallation.Choose(this);await AttachExisting();}};
         FormClosing+=delegate(object sender,FormClosingEventArgs e) {
             if(busy) {e.Cancel=true; status.Text="Wait for the client restart to finish.";return;}
             SavePreferences();FlushPreferences();closing=true;frames.Stop();while(sessions.Count>0)RemoveSession(sessions[0],true);
         };
         FormClosed+=delegate {
-            library.Dispose();search.Dispose();frames.Dispose();chromeTimer.Dispose();macroTimer.Dispose();tabTips.Dispose();
+            library.Dispose();search.Dispose();frames.Dispose();chromeTimer.Dispose();macroTimer.Dispose();tabTips.Dispose();updater.Dispose();
             // Leave a reused site server alone. Stop only the dedicated server
             // this host created on its own port.
             if(localServer!=null) {try {if(!localServer.HasExited)localServer.Kill();}catch{} localServer.Dispose();}
@@ -334,7 +336,9 @@ internal sealed class GameHostForm : Form
                 browser.CoreWebView2.NewWindowRequested+=delegate(object sender,CoreWebView2NewWindowRequestedEventArgs e) {
                     // Links stay in the pane where they were opened. Only the
                     // user's Expand button changes the game/library layout.
-                    e.Handled=true;if(LibraryNavigation.IsLocal(e.Uri,libraryBase))current.Source=new Uri(e.Uri);
+                    e.Handled=true;
+                    if(e.IsUserInitiated&&e.Uri.StartsWith(libraryBase+"/_foam/go/",StringComparison.Ordinal))OpenSponsoredLink(e.Uri);
+                    else if(LibraryNavigation.IsLocal(e.Uri,libraryBase))current.Source=new Uri(e.Uri);
                 };
                 browser.CoreWebView2.NavigationStarting+=delegate(object sender,CoreWebView2NavigationStartingEventArgs e){
                     if(!LibraryNavigation.IsLocal(e.Uri,libraryBase)){e.Cancel=true;status.Text="External links stay outside this local library.";}
@@ -369,6 +373,23 @@ internal sealed class GameHostForm : Form
             string message=ex is InvalidOperationException?ex.Message:"The local skill list could not be saved. You can keep working and export a sheet.";
             browser.CoreWebView2.PostWebMessageAsJson(Program.Json.Serialize(new{type="da-skill-list-result",message=message}));
         }
+    }
+    async void OpenSponsoredLink(string address)
+    {
+        try {
+            string id=Uri.UnescapeDataString(new Uri(address).AbsolutePath.Substring("/_foam/go/".Length));
+            var request=WebRequest.CreateHttp(libraryBase+"/_foam/campaigns.json");request.Timeout=3000;
+            using(var response=await request.GetResponseAsync())using(var reader=new StreamReader(response.GetResponseStream())) {
+                string json=await reader.ReadToEndAsync();if(json.Length>65536)return;
+                var collection=Program.Json.Deserialize<Dictionary<string,object>>(json);object raw;if(!collection.TryGetValue("campaigns",out raw))return;
+                foreach(object value in (System.Collections.IEnumerable)raw) {
+                    var campaign=value as Dictionary<string,object>;object key,href;
+                    if(campaign==null||!campaign.TryGetValue("id",out key)||Convert.ToString(key)!=id||!campaign.TryGetValue("href",out href))continue;
+                    Uri target;if(Uri.TryCreate(Convert.ToString(href),UriKind.Absolute,out target)&&target.Scheme=="https"&&String.IsNullOrEmpty(target.UserInfo))Process.Start(new ProcessStartInfo(target.AbsoluteUri){UseShellExecute=true});
+                    return;
+                }
+            }
+        }catch{status.Text="The sponsored link could not be opened.";}
     }
     static async Task<bool> SiteResponds(string address)
     {
@@ -414,6 +435,7 @@ internal sealed class GameHostForm : Form
         var start=new ProcessStartInfo(node,"\""+Path.Combine(site,"scripts","serve-local.mjs")+"\"");
         start.WorkingDirectory=site;start.UseShellExecute=false;start.CreateNoWindow=true;
         start.EnvironmentVariables["PORT"]=port.ToString();
+        start.EnvironmentVariables["FOAM_UPDATE_ROOT"]=Path.Combine(Program.Root,"updates");
         localServer=Process.Start(start);
         for(int i=0;i<20;i++) {await Task.Delay(250);if(await SiteResponds(address))return address;}
         throw new InvalidOperationException("The local library server did not become ready.");
@@ -468,6 +490,7 @@ internal sealed class GameHostForm : Form
         HostedSession previous=activeSession;
         try
         {
+            if(!GameInstallation.Choose(this)){status.Text="Choose your Dark Ages folder in Settings when you are ready to play.";return;}
             string profile=profileNames[viewport.SelectedIndex],reuse=null;int id=0;
             var server=login!=null?login.Server:replace&&previous!=null?previous.Server:(serverChoice.SelectedItem as ServerProfile??ServerProfile.Kru());
             if(replace && previous!=null)
@@ -913,10 +936,8 @@ internal sealed class GameHostForm : Form
         menu.Items.Add("Display controls (shared)",null,delegate{ShowControls();});
         menu.Items.Add("Map settings (shared)",null,delegate{managingCharacters=false;SelectTab(2);ArrangeHost();if(frame==null||!frame.InWorld)ShowMapSettings();});
         menu.Items.Add("My characters",null,delegate{SetCharacterPanel(true);});
-        var update=menu.Items.Add("Install update...",null,delegate{
-            try{string root=Program.InstallRoot;Process.Start(new ProcessStartInfo(Path.Combine(root,"DA-Library.exe"),"--update"){WorkingDirectory=root,UseShellExecute=true});}
-            catch{status.Text="Could not open updates. Use DA-Library.exe --update in the installation folder.";ShowControls();}
-        });update.Enabled=Program.InstallRoot!=null;
+        menu.Items.Add("Dark Ages folder…",null,delegate{if(busy){status.Text="Wait for game preparation to finish.";return;}if(GameInstallation.Choose(this,true)){status.Text="Dark Ages folder saved. New sessions use this installation.";ShowControls();}});
+        menu.Items.Add("Updates…",null,delegate{if(busy){status.Text="Wait for game preparation to finish.";return;}updater.Show();});
         menu.Items.Add("Open screenshots folder",null,delegate{try{Process.Start(new ProcessStartInfo(CaptureStorage.Ensure("screenshots")){UseShellExecute=true});}catch{status.Text="Could not open the screenshots folder beside the DA launcher.";ShowControls();}});
         menu.Items.Add("Last skulled (all characters)",null,delegate{SkullHistory.Show(this);});
         menu.Closed+=delegate{BeginInvoke(new Action(menu.Dispose));};menu.Show(anchor,new Point(0,anchor.Height));

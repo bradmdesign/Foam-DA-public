@@ -1,3 +1,12 @@
+prototype/widescreen/build/
+prototype/widescreen/deps/
+prototype/widescreen/runtime/
+prototype/widescreen/client-patches/
+prototype/widescreen/updates/
+releases/
+publisher/build/
+publisher/output/
+installer/build/
 node_modules/
 __pycache__/
 *.pyc
@@ -6,17 +15,14 @@ site/dist/
 site/.next/
 site/.vinext/
 site/.cache/
-prototype/widescreen/build/
-prototype/widescreen/runtime/
-prototype/widescreen/deps/
 prototype/widescreen/theme/
 *.exe
 *.dll
+*.zip
 *.dpapi
 *.vault
 .env*
-
 /Foam-DA/
-
-# Release archives are kept outside the source repository.
-*.zip
+**/private/
+**/screenshots/
+**/skulled/

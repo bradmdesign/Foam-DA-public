@@ -239,13 +239,13 @@ internal static class HostFeatureChecks
         }
         foreach(string profile in new[]{"960x600","1088x640","1152x680"})
         {
-            var image=File.ReadAllBytes(Path.Combine(Program.Root,"build","profiles",profile,"Darkages.exe"));
+            var image=File.ReadAllBytes(Path.Combine(GameInstallation.PrepareProfile(profile),"Darkages.exe"));
             int at=EndpointPatch.Offset(image,0xaca85);var patched=StartupPatch.SkipIntro(image);
             Check(patched[at]==0x6a&&patched[at+1]==0x02,"Intro skip enters the native post-video state for "+profile);count++;
             patched[at]=0;bool refused=false;try{StartupPatch.SkipIntro(patched);}catch(InvalidOperationException){refused=true;}
             Check(refused,"Intro patch rejects changed instructions for "+profile);count++;
         }
-        var customImage=File.ReadAllBytes(Path.Combine(Program.Root,"build","profiles","1088x640","Darkages.exe"));
+        var customImage=File.ReadAllBytes(Path.Combine(GameInstallation.PrepareProfile("1088x640"),"Darkages.exe"));
         customImage=GameSessions.UniqueImage(StartupPatch.SkipIntro(EndpointPatch.Apply(customImage)),8);
         int introAt=EndpointPatch.Offset(customImage,0xaca85);
         Check(customImage[introAt]==0x6a&&customImage[introAt+1]==0x02,"Skip intro survives custom-server and session-mutex patches");count++;

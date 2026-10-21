@@ -70,10 +70,10 @@ internal static class ToolChecks
         Require(ServerProfile.Kru().Arguments==""&&ServerProfile.Local().Arguments==" 127.0.0.1 2610","Server command line");checks++;
         foreach(string invalid in new[]{"\"127.0.0.1\"","127.1","127.0.0.1 2610","0.0.0.0","::1"})
         {bool denied=false;try{ServerProfile.Create("bad",invalid,2610);}catch(ArgumentException){denied=true;}Require(denied,"Malformed endpoint accepted");checks++;}
-        var sourceImage=File.ReadAllBytes(Path.Combine(Program.Root,"build","profiles","1088x640","Darkages.exe"));
-        string profileFolder=Path.Combine(Program.Root,"build","profiles","1088x640");
+        var sourceImage=File.ReadAllBytes(Path.Combine(GameInstallation.PrepareProfile("1088x640"),"Darkages.exe"));
+        string profileFolder=GameInstallation.PrepareProfile("1088x640");
         long newBytes=GameSessions.AdditionalBytes(Path.Combine(Program.Root,"build","nonexistent-estimate-only"),profileFolder);
-        long reusedBytes=GameSessions.AdditionalBytes(Path.Combine(Program.Root,"runtime"),profileFolder);
+        long reusedBytes=GameSessions.AdditionalBytes(GameInstallation.Source,profileFolder);
         Require(newBytes>reusedBytes+100L*1024*1024,"Fresh launch disk estimate must include uncopied assets");checks++;
         Require(reusedBytes>0&&reusedBytes<100L*1024*1024,"Reused launch disk estimate must include profile replacement");checks++;
         var patchedEndpoint=EndpointPatch.Apply(sourceImage);
@@ -84,7 +84,7 @@ internal static class ToolChecks
         File.WriteAllBytes(Path.Combine(Program.Root,"build","endpoint-image-check.exe"),GameSessions.UniqueImage(patchedEndpoint,8));
         for(int slot=1;slot<=8;slot++)
         {
-            byte[] client=File.ReadAllBytes(Path.Combine(Program.Root,"build","profiles","1088x640","Darkages.exe"));
+            byte[] client=File.ReadAllBytes(Path.Combine(GameInstallation.PrepareProfile("1088x640"),"Darkages.exe"));
             byte[] changed=GameSessions.UniqueImage(client,slot);
             string text=Encoding.ASCII.GetString(changed);
             Require(text.Contains("DALib.Session"+slot.ToString("0000"))&&!text.Contains("DALib.WidePrototype"),"Session mutex not replaced");checks++;
