@@ -20,7 +20,7 @@ def permitted(name):
             path.name.lower() not in {'darkages.exe', 'setoa.dat'} and path.suffix.lower() != '.dat')
 
 
-def package(host_update=False, output_name=None):
+def package(host_update=False, output_name=None, host_exe=None):
     files = {}
 
     def add(source, name):
@@ -32,7 +32,10 @@ def package(host_update=False, output_name=None):
         files[name] = source
 
     for name in ['Foam-DA.exe', 'Microsoft.Web.WebView2.Core.dll', 'Microsoft.Web.WebView2.WinForms.dll', 'WebView2Loader.dll', 'host-dock.css']:
-        add(HOST/name, name)
+        candidate=Path(host_exe).resolve() if host_exe and name=='Foam-DA.exe' else HOST/name
+        if host_exe and name=='Foam-DA.exe' and not candidate.is_relative_to((HOST/'build/staged').resolve()):
+            raise ValueError('A candidate host must be inside build/staged.')
+        add(candidate, name)
     for name in ['core.mjs', 'worker.mjs', 'channel.json']:
         add(HOST/'updater'/name, 'updater/'+name)
     for name in ['serve-local.mjs', 'companion-runtime.js', 'companion-runtime.css']:
@@ -118,5 +121,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--host-update',action='store_true')
     parser.add_argument('--output',help='A new ZIP filename inside releases; existing packages are never overwritten.')
+    parser.add_argument('--host-exe',help='A tested candidate EXE inside prototype/widescreen/build/staged.')
     args=parser.parse_args()
-    package(args.host_update,args.output)
+    package(args.host_update,args.output,args.host_exe)

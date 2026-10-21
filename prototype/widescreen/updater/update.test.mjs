@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import {gzipSync} from 'node:zlib';
-import {address,allowed,safePath,hash,fileHash,verifyFeed,validateManifest,validateCampaigns,writePack,extractPack,update,installApp,recoverApp,atomicJson,readJson,withLock} from './core.mjs';
+import {address,allowed,safePath,hash,fileHash,verifyFeed,validateManifest,validateCampaigns,writePack,extractPack,update,prepareLaunch,installApp,recoverApp,atomicJson,readJson,withLock} from './core.mjs';
 import {createLibraryServer} from '../../../site/scripts/serve-local.mjs';
 
 const {publicKey,privateKey}=crypto.generateKeyPairSync('rsa',{modulusLength:3072});
@@ -121,6 +121,32 @@ test('content retention keeps current/previous and preserves unrecognized user f
 test('a freshly packaged app baseline skips its already-installed revision',async t=>{
   const root=await fixture(t),r=await release(root,'app',1,{'Foam-DA.exe':'same installed exe'}),calls=[];sign(r.remote,{app:r.descriptor});
   assert.deepEqual((await update(root,{...config,installed_app:r.descriptor},fetcher(r.remote,calls))).changed,[]);assert.deepEqual(calls,['feed.json','feed.json.sig']);
+});
+
+test('startup blocks both a newly found update and a previously pending update until installation finishes',async t=>{
+  const root=await fixture(t),r=await release(root,'app',1,{'Foam-DA.exe':'new application'});
+  sign(r.remote,{app:r.descriptor});
+  const first=await prepareLaunch(root,config,fetcher(r.remote));assert.equal(first.ready,false);assert.equal(first.app_pending,true);
+  const again=await prepareLaunch(root,config,fetcher(r.remote));assert.equal(again.ready,false);assert.equal(again.app_pending,true);
+  await installApp(root,config);
+  assert.equal((await prepareLaunch(root,config,fetcher(r.remote))).ready,true);
+});
+
+test('offline startup is allowed only without a known pending app update; untrusted verification stays blocked',async t=>{
+  const root=await fixture(t);
+  const offline=async()=>{throw Object.assign(Error('Network unavailable.'),{code:'ENOTFOUND'})};
+  assert.equal((await prepareLaunch(root,config,offline)).ready,true);
+  const remote={};sign(remote,{});remote['feed.json.sig']=Buffer.alloc(384);
+  await assert.rejects(prepareLaunch(root,config,fetcher(remote)),/signature/);
+  const r=await release(root,'app',1,{'Foam-DA.exe':'new'});sign(r.remote,{app:r.descriptor});
+  // The feed is verified, but the package connection fails before a pending
+  // installation pointer can be created. Its required version must survive.
+  const remoteFetch=fetcher(r.remote);
+  await assert.rejects(prepareLaunch(root,config,async(url,limit,dest)=>new URL(url).pathname.endsWith('.fup')?offline():remoteFetch(url,limit,dest)),/pending/);
+  assert.equal(await readJson(path.join(root,'updates/app-pending.json')),null);
+  await assert.rejects(prepareLaunch(root,config,offline),/pending/);
+  await prepareLaunch(root,config,remoteFetch);await installApp(root,config);
+  assert.equal((await prepareLaunch(root,config,offline)).ready,true);
 });
 test('server switches content without restart, injects runtime and serves scheduled local ads',async t=>{
   const root=await fixture(t),bundled=path.join(root,'bundled');await fs.mkdir(bundled);await fs.writeFile(path.join(bundled,'index.html.gz'),gzipSync('<html><body><main>Old page</main></body></html>'));await fs.writeFile(path.join(bundled,'deleted.html'),'removed record');

@@ -29,7 +29,7 @@ try {
     child.stdout.on('data',chunk=>dom+=chunk);child.stderr.on('data',chunk=>errors+=chunk);
     const deadline=setTimeout(()=>child.kill(),45000);
     const code=await new Promise((resolve,reject)=>{child.on('error',reject);child.on('exit',resolve)});clearTimeout(deadline);
-    assert.equal(code,0,errors.slice(-500));assert.match(dom,/id="foam-sponsored"/);assert.match(dom,/Sponsored/);assert.match(dom,/BearDog Games/);assert.match(dom,/href="\/_foam\/go\/beardog"/);
+    assert.equal(code,0,errors.slice(-500));assert.match(dom,/id="foam-sponsored"/);assert.doesNotMatch(dom,/>Sponsored</);assert.match(dom,/BearDog Games/);assert.match(dom,/href="\/_foam\/go\/beardog"/);
     assert.ok((await fs.stat(screenshot)).size>1000);await fs.writeFile(path.join(output,name+'.html'),dom);
     console.log(name+': themed ad strip and explicit sponsor link rendered; '+screenshot);
   }

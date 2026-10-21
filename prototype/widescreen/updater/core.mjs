@@ -51,6 +51,9 @@ export function address(text, base) {
   if (url.protocol !== 'https:' || url.username || url.password || url.hash) throw Error('Updates require an HTTPS address.');
   return url;
 }
+function unavailable(error) {
+  return error?.code==='FOAM_UPDATE_UNAVAILABLE'||['ENOTFOUND','EAI_AGAIN','ECONNREFUSED','ECONNRESET','ETIMEDOUT','ENETUNREACH','EHOSTUNREACH','EPIPE'].includes(error?.code);
+}
 // Fetches only public files. No cookies, game data, account tokens or identifiers.
 export async function download(url, limit, destination = null, redirects = 0) {
   url = address(url);
@@ -62,6 +65,7 @@ export async function download(url, limit, destination = null, redirects = 0) {
         try { resolve(download(address(response.headers.location, url), limit, destination, redirects + 1)); } catch (e) { reject(e); }
         return;
       }
+      if(response.statusCode>=500){response.resume();reject(Object.assign(Error('The update source is temporarily unavailable.'),{code:'FOAM_UPDATE_UNAVAILABLE'}));return;}
       if (response.statusCode !== 200 || Number(response.headers['content-length'] || 0) > limit) { response.resume(); reject(Error('Update source returned an unavailable or oversized file.')); return; }
       let count = 0; const chunks = [], out = destination ? fs.createWriteStream(destination, {flags:'wx'}) : null;
       response.on('data', chunk => { count += chunk.length; if (count > limit) response.destroy(Error('Update download exceeds its size limit.')); else if (!out) chunks.push(chunk); });
@@ -69,7 +73,7 @@ export async function download(url, limit, destination = null, redirects = 0) {
       if (out) { pipeline(response, out).then(() => resolve(count), reject); }
       else response.on('end', () => resolve(Buffer.concat(chunks)));
     });
-    request.setTimeout(30000, () => request.destroy(Error('Update request timed out.')));
+    request.setTimeout(30000, () => request.destroy(Object.assign(Error('Update request timed out.'),{code:'ETIMEDOUT'})));
     request.on('error', reject);
   });
 }
@@ -173,6 +177,14 @@ export async function update(root, config, fetch = download) {
     const bytes = await fetch(new URL(config.feed_url),65536), sig = await fetch(signatureUrl,4096);
     const feed = verifyFeed(bytes,sig,config.public_key);
     const state = await readJson(path.join(store,'state.json'),{schema:1,components:{}}); const changed = [];
+    const required=await requiredApp(root,config), app=feed.components.app;
+    const current=await readJson(path.join(store,'app-current.json'));
+    const installedRevision=current?.revision||config.installed_app?.revision||0;
+    if(required&&app&&app.revision<required.revision)throw Error('The update feed is older than a required app version already received.');
+    // Record a verified required version before downloading any component.
+    // An interrupted download must not turn into permission to run offline.
+    if(app&&app.revision>installedRevision)await atomicJson(path.join(store,'app-required.json'),{schema:1,feed_base64:bytes.toString('base64'),signature_base64:sig.toString('base64')});
+    else if(!required)await fsp.rm(path.join(store,'app-required.json'),{force:true});
     for (const component of components) {
       const d = feed.components[component]; if (!d) continue;
       const previous = state.components[component] || config['installed_'+component];
@@ -182,6 +194,7 @@ export async function update(root, config, fetch = download) {
         let repair=false;
         if(component==='app'){
           const pending=await readJson(path.join(store,'app-pending.json'));
+          if(d.revision>installedRevision&&!pending)repair=true;
           if(pending?.revision===d.revision){
             try{
               const cached=safePath(store,'app/'+pending.release),receipt=await readJson(path.join(cached,'receipt.json'));
@@ -227,8 +240,36 @@ export async function update(root, config, fetch = download) {
         if(component!=='app')await pruneContent(store,component).catch(()=>{});
       } finally { await fsp.rm(pack,{force:true}); await removeStage(folder,stage); }
     }
-    return {ok:true,changed,app_pending:!!await readJson(path.join(store,'app-pending.json')),message:changed.length ? 'Updated '+changed.join(', ')+'.' : 'Everything is up to date.'};
+    const pending=!!await readJson(path.join(store,'app-pending.json'));
+    return {ok:true,changed,app_pending:pending,message:pending?'A required app update is ready.':changed.length?'Library content updated.':'Everything is up to date.'};
   });
+}
+
+// Startup is deliberately separate from a background check: a pending app
+// must never be treated as permission to run the old executable.
+export async function prepareLaunch(root,config,fetch=download) {
+  try{
+    const result=await update(root,config,fetch);
+    const installing=!!await readJson(path.join(root,'updates/app-installing.json'));
+    const required=await requiredApp(root,config);
+    return {...result,ready:!result.app_pending&&!installing&&!required,installing};
+  }catch(error){
+    if(!unavailable(error))throw error;
+    const pending=await readJson(path.join(root,'updates/app-pending.json'));
+    const installing=await readJson(path.join(root,'updates/app-installing.json'));
+    if(pending||installing||await requiredApp(root,config))throw Error('An update is pending. Reconnect to finish updating before opening Foam DA.');
+    await fsp.rm(path.join(root,'updates/app-required.json'),{force:true});
+    return {ok:true,changed:[],ready:true,offline:true,app_pending:false,message:'Offline. Using the installed version; no update is pending.'};
+  }
+}
+
+async function requiredApp(root,config){
+  const receipt=await readJson(path.join(root,'updates/app-required.json'));if(!receipt)return null;
+  if(receipt.schema!==1||typeof receipt.feed_base64!=='string'||typeof receipt.signature_base64!=='string')throw Error('Invalid required update record.');
+  const feed=verifyFeed(Buffer.from(receipt.feed_base64,'base64'),Buffer.from(receipt.signature_base64,'base64'),config.public_key);
+  if(!feed.components.app)throw Error('Required update record has no app version.');
+  const current=await readJson(path.join(root,'updates/app-current.json'));
+  return feed.components.app.revision>(current?.revision||config.installed_app?.revision||0)?feed.components.app:null;
 }
 
 async function pruneContent(store,component) {
@@ -282,6 +323,7 @@ export async function installApp(root, config) {
       }
       await atomicJson(path.join(store,'app-current.json'),pointer);
       await fsp.unlink(journalFile); await fsp.unlink(path.join(store,'app-pending.json'));
+      const required=await requiredApp(root,config);if(!required)await fsp.rm(path.join(store,'app-required.json'),{force:true});
       return {ok:true,message:'App update installed.',version:m.version};
     } catch (e) { await recoverApp(root); throw e; }
   });
