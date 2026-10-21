@@ -10,9 +10,11 @@ Run the Windows installer and choose a writable folder. The installer includes t
 
 On first launch, choose your installed Dark Ages folder. The full game, personal profiles, saved accounts and signing secrets are excluded from downloads. The installer release identifies its exact source commit and includes a signed per-file inventory; it is built from this repository's source. [Installer details](installer/README.md).
 
+Choose a window size to suit your display, including ultrawide, 1920 × 1080, and smaller windows.
+
 ![162.5% more map area with the bottom-right Library](docs/demo/screen-area.png)
 
-**In the pictured layout: 162.5% more map area, 72.7% more width, and 51.9% more height** at 100% play zoom. [See the comparison and calculation](docs/demo/README.md).
+**162.5% more map area in the pictured layout.** [See the demo](docs/demo/README.md).
 
 ## No more alt-tabs!
 
@@ -59,9 +61,7 @@ For a small update to an **existing Foam DA installation**, use `Package.ps1 -Ho
 
 ## Automatic updates
 
-Foam DA checks for signed updates automatically. A pending app update must be installed before the host opens. If the update source is unreachable and no update is pending, the installed app remains available offline. Library content updates independently, and running game sessions stay open during a host replacement. See [publisher instructions](publisher/README.md) for publishing records and app versions.
-
-Resize the host to suit your display, including ultrawide, 1920 × 1080, and smaller windows. The game view scales within the host while the original controls and bottom-right Library remain available.
+Includes an auto-updater.
 
 ## Source layout
 
