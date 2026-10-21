@@ -19,7 +19,7 @@ The native full-HUD MAP control grows from 616 × 308 to 1064 × 468 logical pix
 
 ![Game with skill planning in the bottom-right Library](game-library.png)
 
-## You no longer need to Alt+Tab
+## No more alt-tabs!
 
 Nearly every piece of Dark Ages information you would otherwise look up on a website is now right in your client. Search quests, skills, items, spells, and maps in the lightning-fast bottom-right Library. Check requirements, item costs, experience, ability points, icons, sprites, and related records while you play—or open the Library on its own.
 

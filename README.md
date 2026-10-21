@@ -14,7 +14,7 @@ On first launch, choose your installed Dark Ages folder. The full game, personal
 
 **In the pictured layout: 162.5% more map area, 72.7% more width, and 51.9% more height** at 100% play zoom. [See the comparison and calculation](docs/demo/README.md).
 
-## You no longer need to Alt+Tab
+## No more alt-tabs!
 
 Nearly every piece of Dark Ages information you would otherwise look up on a website is now right in your client. The lightning-fast bottom-right Library brings together quests, skills, items, spells, and maps, with requirements, item costs, experience, ability points, icons, sprites, and related records. Look things up while you play, or open the Library on its own.
 
