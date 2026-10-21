@@ -30,10 +30,10 @@ def main():
     prerequisite = args.webview2.resolve(strict=True)
     # Verify the real Microsoft runtime's Authenticode publisher before packaging.
     result = subprocess.run(['powershell', '-NoProfile', '-Command',
-        '$s=Get-AuthenticodeSignature -LiteralPath $env:FOAM_SETUP_WEBVIEW; if($s.Status -ne "Valid" -or $s.SignerCertificate.Subject -notmatch "Microsoft Corporation"){exit 1}'],
+        '$ErrorActionPreference="Stop"; Import-Module (Join-Path $PSHOME "Modules/Microsoft.PowerShell.Security/Microsoft.PowerShell.Security.psd1"); $s=Get-AuthenticodeSignature -LiteralPath $env:FOAM_SETUP_WEBVIEW; if($s.Status -ne "Valid" -or $s.SignerCertificate.Subject -notmatch "Microsoft Corporation"){exit 1}'],
         env=dict(os.environ,FOAM_SETUP_WEBVIEW=str(prerequisite)), capture_output=True)
     if result.returncode:
-        raise RuntimeError('The WebView2 prerequisite must have a valid Microsoft Authenticode signature.')
+        raise RuntimeError('The WebView2 prerequisite must have a valid Microsoft Authenticode signature. '+result.stderr.decode(errors='replace')[:500])
     output = ROOT/'releases'/('Foam-DA-Setup-'+args.version+'.exe')
     if output.exists():
         raise RuntimeError('Preserve the existing immutable installer before rebuilding.')
