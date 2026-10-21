@@ -1,6 +1,6 @@
 # Foam DA
 
-A Windows companion and offline reference library for Dark Ages. Foam DA combines an expanded game view, local reference search, maps, character switching, hotkeys, skill planning, and screenshots in one desktop host.
+A Windows companion with a lightning-fast reference UI for Dark Ages quests, skills, items, spells, and maps. Foam DA combines an expanded game view, local reference search, maps, character switching, hotkeys, skill planning, and screenshots in one desktop host.
 
 ## Download and demo
 
@@ -10,7 +10,9 @@ Run the Windows installer and choose a writable folder. The installer includes t
 
 On first launch, choose your installed Dark Ages folder. The full game, personal profiles, saved accounts and signing secrets are excluded from downloads. The installer release identifies its exact source commit and includes a signed per-file inventory; it is built from this repository's source. [Installer details](installer/README.md).
 
-![Game with the bottom-right Library](docs/demo/game-library-town.png)
+![162.5% more map area with the bottom-right Library](docs/demo/screen-area.png)
+
+**In the pictured layout: 162.5% more map area, 72.7% more width, and 51.9% more height** at 100% play zoom. [See the comparison and calculation](docs/demo/README.md).
 
 ## Build and run
 

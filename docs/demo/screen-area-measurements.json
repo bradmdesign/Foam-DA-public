@@ -1,0 +1,17 @@
+{
+  "basis": "Native MAP control bounds in the full-HUD layout; play zoom 100%. Display scaling is excluded.",
+  "original_map": [
+    616,
+    308
+  ],
+  "expanded_map": [
+    1064,
+    468
+  ],
+  "width_increase_percent": 72.72727272727273,
+  "height_increase_percent": 51.94805194805194,
+  "area_increase_percent": 162.45572609208972,
+  "map_area_multiple": 2.624557260920897,
+  "source_layout": "prototype/widescreen/build_prototype.py:patch_layout",
+  "source_screenshot": "game-library-town.png"
+}
