@@ -80,6 +80,25 @@ def upload(secret, release, source):
         connection.close()
 
 
+def find_release(secret, tag):
+    release = request(secret, 'GET', '/releases/tags/' + urllib.parse.quote(tag, safe=''))
+    if release is not None:
+        return release
+    # GitHub's tag lookup omits unpublished drafts. Resume those by their
+    # release identity instead of creating a second draft for the same tag.
+    matches = []
+    page = 1
+    while True:
+        rows = request(secret, 'GET', '/releases?per_page=100&page=' + str(page))
+        matches.extend(row for row in rows if row['tag_name'] == tag)
+        if len(rows) < 100:
+            break
+        page += 1
+    if len(matches) > 1:
+        raise RuntimeError('Several release drafts use this tag; resolve them before uploading.')
+    return matches[0] if matches else None
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', choices=['status', 'make-public', 'release'])
@@ -103,7 +122,7 @@ def main():
         if not args.tag or not args.commit or not args.notes or not args.title:
             parser.error('release needs --tag, --commit, --title and --notes')
         notes = args.notes.read_text(encoding='utf-8')
-        release = request(secret, 'GET', '/releases/tags/' + urllib.parse.quote(args.tag, safe=''))
+        release = find_release(secret, args.tag)
         if release is None:
             release = request(secret, 'POST', '/releases', {'tag_name': args.tag, 'target_commitish': args.commit,
                 'name': args.title, 'body': notes, 'draft': True, 'prerelease': args.prerelease})
