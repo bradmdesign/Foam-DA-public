@@ -1,6 +1,6 @@
 # Foam DA
 
-A Windows companion with a lightning-fast reference UI for Dark Ages quests, skills, items, spells, and maps. Foam DA combines an expanded game view, local reference search, maps, character switching, hotkeys, skill planning, and screenshots in one desktop host.
+A Windows companion that brings Dark Ages reference information into your client. Foam DA combines an expanded game view, local reference search, maps, character switching, macros, hotkeys, skill planning, and screenshots in one desktop host.
 
 ## Download and demo
 
@@ -13,6 +13,14 @@ On first launch, choose your installed Dark Ages folder. The full game, personal
 ![162.5% more map area with the bottom-right Library](docs/demo/screen-area.png)
 
 **In the pictured layout: 162.5% more map area, 72.7% more width, and 51.9% more height** at 100% play zoom. [See the comparison and calculation](docs/demo/README.md).
+
+## You no longer need to Alt+Tab
+
+Nearly every piece of Dark Ages information you would otherwise look up on a website is now right in your client. The lightning-fast bottom-right Library brings together quests, skills, items, spells, and maps, with requirements, item costs, experience, ability points, icons, sprites, and related records. Look things up while you play, or open the Library on its own.
+
+## Built-in macros and hotkeys
+
+Train selected skills and spells, or repeat your own key sequence at a chosen interval with Simple mode. Assail can press Space every half-second, and macros can keep running across game tabs. Assign shortcuts such as **Shift+1** or **Alt+2** to key combinations with timed pauses. Both panels are built into the client, reducing the need for extra programs. [See examples in the demo](docs/demo/README.md#built-in-macros-and-hotkeys).
 
 ## Build and run
 

@@ -19,11 +19,17 @@ The native full-HUD MAP control grows from 616 × 308 to 1064 × 468 logical pix
 
 ![Game with skill planning in the bottom-right Library](game-library.png)
 
-## Lightning-fast Dark Ages UI
+## You no longer need to Alt+Tab
 
-A lightning-fast UI for Dark Ages quests, skills, items, spells, and maps. Find requirements, costs, icons, sprites, and related records in the bottom-right panel—or open the Library on its own.
+Nearly every piece of Dark Ages information you would otherwise look up on a website is now right in your client. Search quests, skills, items, spells, and maps in the lightning-fast bottom-right Library. Check requirements, item costs, experience, ability points, icons, sprites, and related records while you play—or open the Library on its own.
 
 ![Library with ability icons and item requirements](library.png)
+
+## Built-in macros and hotkeys
+
+Keep skill training and key combinations in the same client, reducing the need for extra programs. The Macro panel lets you choose skills or spells to train, or use Simple mode to repeat a key sequence at your chosen interval. Enable Assail to press Space every half-second; macros can continue in other game tabs while you do something else.
+
+The Hotkeys panel turns shortcuts such as **Shift+1** or **Alt+2** into a sequence of keypresses, including timed pauses. For example, `s1234 space (pause:500) 5 6` opens the skill panel, presses 1–4 and Space, waits half a second, then presses 5 and 6. Shortcuts run with the game focused and chat or dialogue closed.
 
 ## Automatic updates
 
