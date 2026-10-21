@@ -88,6 +88,7 @@ internal sealed class CharacterPanel : DAPanel
     readonly DAButton back=new DAButton{Text="Back to game",Width=110,Height=28,Visible=false};
     readonly FlowLayoutPanel buttons=new FlowLayoutPanel();
     readonly CharacterPortraitView portrait=new CharacterPortraitView();
+    readonly HearthSupport support=new HearthSupport();
     readonly Dictionary<string,Bitmap> portraits=new Dictionary<string,Bitmap>();
     bool layingOut;
     internal Func<ServerProfile> SelectedServer;
@@ -117,7 +118,7 @@ internal sealed class CharacterPanel : DAPanel
         }
         privacy.Text=CharacterVault.Notice;privacy.ForeColor=DATheme.Gold;
         back.Click+=delegate{if(Dismissed!=null)Dismissed(this,EventArgs.Empty);};
-        Controls.AddRange(new Control[]{heading,back,portrait,list,buttons,privacy,message});Resize+=delegate{LayoutCharacters();};RefreshEntries();LayoutCharacters();
+        Controls.AddRange(new Control[]{heading,back,portrait,list,buttons,support,privacy,message});Resize+=delegate{LayoutCharacters();};RefreshEntries();LayoutCharacters();
     }
     internal void RefreshEntries()
     {
@@ -164,12 +165,15 @@ internal sealed class CharacterPanel : DAPanel
         if(layingOut)return;layingOut=true;SuspendLayout();try{
         int width=Math.Max(300,ClientSize.Width-Padding.Horizontal-4),height=Math.Max(660,ClientSize.Height-Padding.Vertical-4),gap=12,inside=width-2*gap;
         AutoScrollMinSize=new Size(0,660);heading.SetBounds(gap,gap,Math.Max(1,inside-(back.Visible?122:0)),32);back.SetBounds(width-gap-110,gap,110,28);
-        int footer=height-238,bodyTop=54,bodyHeight=footer-bodyTop-10;
+        int supportHeight=support.HeightFor(inside);
+        int privacyHeight=TextRenderer.MeasureText(privacy.Text,Font,new Size(inside,1000),TextFormatFlags.WordBreak).Height+4;
+        int footer=height-Math.Max(238,68+supportHeight+6+privacyHeight+6+40),bodyTop=54,bodyHeight=footer-bodyTop-10;
         if(width>=760)
         {int hero=Math.Min(360,width*2/5);portrait.SetBounds(gap,bodyTop,hero,bodyHeight);list.SetBounds(gap+hero+gap,bodyTop,inside-hero-gap,bodyHeight);}
         else
         {int hero=Math.Min(260,Math.Max(234,bodyHeight/2));portrait.SetBounds(gap,bodyTop,inside,hero);list.SetBounds(gap,bodyTop+hero+gap,inside,Math.Max(80,bodyHeight-hero-gap));}
-        buttons.SetBounds(gap,footer,inside,64);privacy.SetBounds(gap,footer+68,inside,120);message.SetBounds(gap,footer+194,inside,40);
+        buttons.SetBounds(gap,footer,inside,64);support.SetBounds(gap,footer+68,inside,supportHeight);
+        privacy.SetBounds(gap,footer+74+supportHeight,inside,privacyHeight);message.SetBounds(gap,height-44,inside,40);
         }finally{ResumeLayout(false);layingOut=false;}
     }
     protected override void OnLayout(LayoutEventArgs e){if(portrait!=null)LayoutCharacters();base.OnLayout(e);}

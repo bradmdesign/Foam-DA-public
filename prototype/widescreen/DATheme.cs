@@ -103,6 +103,32 @@ internal class DAPanel : Panel
     protected override void OnPaintBackground(PaintEventArgs e){DATheme.Paint(e.Graphics,ClientRectangle,false);}
 }
 
+internal sealed class HearthSupport : DAPanel
+{
+    internal const string Website="https://beardog.games/hearth/";
+    internal const string Message="Want to support the creator? Check out his DA inspired game, Hearth!";
+    readonly LinkLabel link=new LinkLabel();
+    internal HearthSupport()
+    {
+        Font=DATheme.Font(DATheme.CompanionFontPixels);Padding=new Padding(8,5,8,5);
+        AccessibleName="Support the creator · Hearth";AccessibleDescription=Website;
+        link.Text=Message;link.Dock=DockStyle.Fill;link.TextAlign=ContentAlignment.MiddleLeft;
+        link.BackColor=DATheme.Dark;link.ForeColor=link.LinkColor=link.ActiveLinkColor=link.VisitedLinkColor=DATheme.Gold;
+        link.LinkBehavior=LinkBehavior.AlwaysUnderline;link.UseMnemonic=false;
+        link.LinkArea=new LinkArea(Message.IndexOf("Hearth",StringComparison.Ordinal),"Hearth!".Length);
+        link.LinkClicked+=delegate{OpenWebsite(this);};Controls.Add(link);
+    }
+    internal int HeightFor(int width)
+    {
+        return Math.Max(32,link.GetPreferredSize(new Size(Math.Max(1,width-Padding.Horizontal),0)).Height+Padding.Vertical);
+    }
+    internal static void OpenWebsite(IWin32Window owner)
+    {
+        try{System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Website){UseShellExecute=true});}
+        catch{MessageBox.Show(owner,"The Hearth website could not be opened.\r\n"+Website,"Hearth",MessageBoxButtons.OK,MessageBoxIcon.Information);}
+    }
+}
+
 internal sealed class DACheckBox : CheckBox
 {
     internal DACheckBox(){SetStyle(ControlStyles.UserPaint|ControlStyles.AllPaintingInWmPaint|ControlStyles.OptimizedDoubleBuffer,true);ForeColor=DATheme.Gold;BackColor=DATheme.Dark;}

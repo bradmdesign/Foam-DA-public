@@ -252,7 +252,16 @@ internal sealed class MapPanel : Panel
         MiniMap.Text="Show minimap";MiniMap.AccessibleName="Show minimap";MiniMap.Checked=true;FillCell(MiniMap);miniRow.Controls.Add(MiniMap,0,0);
         MiniMapStyle.DropDownStyle=ComboBoxStyle.DropDownList;MiniMapStyle.Items.AddRange(new object[]{"Live","Standard"});MiniMapStyle.SelectedIndex=0;MiniMapStyle.BackColor=DATheme.Dark;MiniMapStyle.ForeColor=DATheme.Gold;MiniMapStyle.FlatStyle=FlatStyle.Flat;MiniMapStyle.AccessibleName="Minimap style";FillCell(MiniMapStyle);miniRow.Controls.Add(MiniMapStyle,1,0);
         Grid.Text="Tile grid";FillCell(Grid);miniRow.Controls.Add(Grid,2,0);
-        LastSkulled.MaximumSize=new Size(116,24);FillCell(LastSkulled);miniRow.Controls.Add(LastSkulled,3,0);body.Controls.Add(miniRow,0,4);Controls.Add(body);
+        LastSkulled.MaximumSize=new Size(116,24);FillCell(LastSkulled);miniRow.Controls.Add(LastSkulled,3,0);body.Controls.Add(miniRow,0,4);
+        Controls.Add(body);
+        var support=new HearthSupport{Visible=false};Controls.Add(support);
+        Action arrangeSupport=delegate{
+            int width=Math.Max(1,ClientSize.Width-8),height=support.HeightFor(width),top=body.Bottom+3;
+            bool fits=ClientSize.Height>=top+height+4;
+            if(fits)support.SetBounds(4,top,width,height);
+            support.Visible=fits;
+        };
+        SizeChanged+=delegate{arrangeSupport();};body.SizeChanged+=delegate{arrangeSupport();};
         DATheme.StyleCompanion(this);
         CustomZoom.CheckedChanged+=Changed;ZoomScale.ValueChanged+=Changed;Fog.CheckedChanged+=Changed;Range.ValueChanged+=Changed;Shape.SelectedIndexChanged+=Changed;Opacity.ValueChanged+=Changed;Fade.CheckedChanged+=Changed;PlayZoom.ValueChanged+=Changed;TabTransparency.ValueChanged+=Changed;MiniMap.CheckedChanged+=Changed;MiniMapStyle.SelectedIndexChanged+=Changed;Grid.CheckedChanged+=Changed;
         LockZoom.CheckedChanged+=Changed;ExperienceRate.CheckedChanged+=Changed;AbilityRate.CheckedChanged+=Changed;

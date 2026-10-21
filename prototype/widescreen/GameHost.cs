@@ -940,11 +940,14 @@ internal sealed class GameHostForm : Form
         menu.Items.Add("Updates…",null,delegate{if(busy){status.Text="Wait for game preparation to finish.";return;}updater.Show();});
         menu.Items.Add("Open screenshots folder",null,delegate{try{Process.Start(new ProcessStartInfo(CaptureStorage.Ensure("screenshots")){UseShellExecute=true});}catch{status.Text="Could not open the screenshots folder beside the DA launcher.";ShowControls();}});
         menu.Items.Add("Last skulled (all characters)",null,delegate{SkullHistory.Show(this);});
+        menu.Items.Add(new ToolStripSeparator());
+        var support=new HearthSupport{Width=420};support.Height=support.HeightFor(support.Width);
+        menu.Items.Add(new ToolStripControlHost(support){AutoSize=false,Size=support.Size,Margin=Padding.Empty,Padding=Padding.Empty});
         menu.Closed+=delegate{BeginInvoke(new Action(menu.Dispose));};menu.Show(anchor,new Point(0,anchor.Height));
     }
     void ShowMapSettings()
     {
-        using(var form=new Form{Text="Map settings · shared by every character",ClientSize=new Size(490,145),StartPosition=FormStartPosition.CenterParent,BackColor=DATheme.Dark,MinimizeBox=false,MaximizeBox=false,FormBorderStyle=FormBorderStyle.FixedDialog})
+        using(var form=new Form{Text="Map settings · shared by every character",ClientSize=new Size(490,185),StartPosition=FormStartPosition.CenterParent,BackColor=DATheme.Dark,MinimizeBox=false,MaximizeBox=false,FormBorderStyle=FormBorderStyle.FixedDialog})
         {
             companionBody.Controls.Remove(mapOptions);form.Controls.Add(mapOptions);mapOptions.Visible=true;
             form.ShowDialog(this);form.Controls.Remove(mapOptions);companionBody.Controls.Add(mapOptions);SelectTab(selectedTab);
