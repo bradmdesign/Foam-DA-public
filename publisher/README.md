@@ -26,7 +26,7 @@ The snapshot includes pages, search, icons and sprites. It excludes game files a
 Build and check the host, then prepare its next revision:
 
 ```powershell
-.\publisher\Publish.ps1 -Component App -Version 0.3.1 -Revision 4
+.\publisher\Publish.ps1 -Component App -Version 0.3.1 -Revision 5
 ```
 
 App packages use an explicit allowlist and signed file hashes. Replacement is staged, verified and journaled. Interrupted changes are recovered before startup. User settings, screenshots, characters and game sessions are preserved.
