@@ -389,7 +389,7 @@ internal sealed class GameHostForm : Form
                     return;
                 }
             }
-        }catch{status.Text="The sponsored link could not be opened.";}
+        }catch{status.Text="The link could not be opened.";}
     }
     static async Task<bool> SiteResponds(string address)
     {

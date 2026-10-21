@@ -143,7 +143,7 @@ export async function extractPack(pack, manifest, destination) {
 export function validateCampaigns(value) {
   if (value?.schema !== 1 || !Array.isArray(value.campaigns) || value.campaigns.length > 20) throw Error('Invalid ad collection.');
   for (const c of value.campaigns) {
-    if (!/^[a-z0-9_-]{1,60}$/i.test(c.id || '') || typeof c.title !== 'string' || c.title.length > 100 || (c.text && (typeof c.text !== 'string' || c.text.length > 180)) || (c.image && !allowed('ads',c.image)) || c.image === 'campaigns.json') throw Error('Invalid ad.');
+    if (!/^[a-z0-9_-]{1,60}$/i.test(c.id || '') || typeof c.title !== 'string' || c.title.length > 100 || (c.text && (typeof c.text !== 'string' || c.text.length > 180)) || (c.image && !allowed('ads',c.image)) || c.image === 'campaigns.json') throw Error('Invalid content message.');
     if (c.href) address(c.href);
     for (const field of ['starts','ends']) if (c[field] && !Number.isFinite(Date.parse(c[field]))) throw Error('Invalid ad schedule.');
     if(c.starts&&c.ends&&Date.parse(c.ends)<=Date.parse(c.starts))throw Error('An ad must end after it starts.');
@@ -219,7 +219,7 @@ export async function update(root, config, fetch = download) {
         await extractPack(pack,m,stage);
         if (component === 'ads') {
           const ads = validateCampaigns(await readJson(path.join(stage,'campaigns.json')));
-          for (const c of ads.campaigns) if (c.image && (!m.files.some(f=>f.path===c.image) || fs.statSync(safePath(stage,c.image)).size > 2*1024*1024)) throw Error('Ad image is missing or too large.');
+          for (const c of ads.campaigns) if (c.image && (!m.files.some(f=>f.path===c.image) || fs.statSync(safePath(stage,c.image)).size > 2*1024*1024)) throw Error('A message image is missing or too large.');
         }
         await atomicJson(path.join(stage,'receipt.json'),{manifest_base64:raw.toString('base64'),feed_base64:bytes.toString('base64'),signature_base64:sig.toString('base64')});
         const release = String(m.revision)+'-'+m.sha256.slice(0,12), final = path.join(folder,release);
