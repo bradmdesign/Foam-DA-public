@@ -121,6 +121,8 @@ def build(source, output=None):
             (folder / filename).write_bytes(patch)
             row[filename.replace('.patch.gz', '_patch_sha256')] = client.sha(patch)
         profiles[name] = row
+    # Copy inventory only: optional loading art and launcher helpers are not
+    # required to be present in another user's otherwise compatible install.
     assets = sorted(p.name for p in source.iterdir() if p.is_file() and
                     p.suffix.lower() in ('.dat', '.dll', '.bmp', '.tbl', '.nfo') and p.name.lower() != 'setoa.dat')
     catalog = {'version': 1, 'source_client_sha256': client.sha(original),

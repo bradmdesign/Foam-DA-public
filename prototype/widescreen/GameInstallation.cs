@@ -44,6 +44,23 @@ internal static class GameInstallation
                 throw new InvalidDataException("Invalid game asset list.");
         return value;
     }
+    // The catalog is a copy inventory, not a list of mandatory files. Loading
+    // pictures and old installer/launcher helpers differ between installations.
+    internal static bool RequiredAsset(string name)
+    {
+        return Path.GetExtension(name).Equals(".dat",StringComparison.OrdinalIgnoreCase)||
+            name.Equals("Mss32.dll",StringComparison.OrdinalIgnoreCase)||
+            name.Equals("binkw32.dll",StringComparison.OrdinalIgnoreCase)||
+            name.Equals("mServer.tbl",StringComparison.OrdinalIgnoreCase);
+    }
+    internal static IEnumerable<string> AvailableAssets(string folder,ClientCatalog catalog=null)
+    {
+        foreach(string name in (catalog??Catalog()).assets)
+        {
+            string file=Path.Combine(folder,name);
+            if(File.Exists(file))yield return file;
+        }
+    }
     internal static string Validate(string folder,ClientCatalog catalog=null)
     {
         if(String.IsNullOrWhiteSpace(folder)||!Directory.Exists(folder))throw new IOException("Choose the folder where Dark Ages is installed.");
@@ -56,7 +73,9 @@ internal static class GameInstallation
         if(!File.Exists(exe)||!File.Exists(layout))throw new IOException("That folder does not contain Darkages.exe and setoa.dat.");
         if(Program.HashFile(exe)!=catalog.source_client_sha256||Program.HashFile(layout)!=catalog.source_setoa_sha256)
             throw new IOException("This Dark Ages version is not supported. Select an original 7.41 installation matching this Foam DA release.");
-        if(catalog.assets.Any(name=>!File.Exists(Path.Combine(folder,name))))throw new IOException("This Dark Ages installation is incomplete. Select the complete installed game folder.");
+        string[] missing=catalog.assets.Where(RequiredAsset).Where(name=>!File.Exists(Path.Combine(folder,name))).ToArray();
+        if(missing.Length>0)throw new IOException("The game version is compatible, but this folder is missing required files:"+Environment.NewLine+Environment.NewLine+
+            String.Join(Environment.NewLine,missing)+Environment.NewLine+Environment.NewLine+"Select the installed game folder containing these files.");
         return folder;
     }
     internal static bool Choose(IWin32Window owner,bool force=false)

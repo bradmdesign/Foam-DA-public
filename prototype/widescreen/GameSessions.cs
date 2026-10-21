@@ -71,7 +71,7 @@ internal static class GameSessions
             throw new InvalidOperationException("The prepared viewport failed verification.");
         // Check before creating any output. A new tab copies sizeable assets;
         // leave headroom for the existing game and the host's browser cache.
-        long required=AdditionalBytes(folder,source)+128L*1024*1024;
+        long required=AdditionalBytes(folder,source,assets)+128L*1024*1024;
         if(new DriveInfo(Path.GetPathRoot(folder)).AvailableFreeSpace<required)
             throw new IOException("This tab needs "+((required+1048575)/1048576)+" MB free, including working space.");
         bool created=!Directory.Exists(folder);
@@ -83,9 +83,8 @@ internal static class GameSessions
         // Hold any old executable exclusively, so preparing cannot race a launch.
         using(var guard=new FileStream(game,FileMode.OpenOrCreate,FileAccess.ReadWrite,FileShare.None))
         {
-            foreach(var assetName in GameInstallation.Catalog().assets)
+            foreach(string file in GameInstallation.AvailableAssets(assets))
             {
-                string file=Path.Combine(assets,assetName);
                 string ext=Path.GetExtension(file).ToLowerInvariant(),name=Path.GetFileName(file);
                 if(name.Equals("setoa.dat",StringComparison.OrdinalIgnoreCase))continue;
                 if(ext==".dat"||ext==".dll"||ext==".bmp"||ext==".tbl"||ext==".nfo")
@@ -113,13 +112,12 @@ internal static class GameSessions
             throw;
         }
     }
-    internal static long AdditionalBytes(string folder,string source)
+    internal static long AdditionalBytes(string folder,string source,string installed=null)
     {
         long result=new FileInfo(Path.Combine(source,"setoa.dat")).Length+new FileInfo(Path.Combine(source,"Darkages.exe")).Length+512;
-        string runtime=GameInstallation.Source;
-        foreach(string assetName in GameInstallation.Catalog().assets)
+        string runtime=installed??GameInstallation.Source;
+        foreach(string file in GameInstallation.AvailableAssets(runtime))
         {
-            string file=Path.Combine(runtime,assetName);
             string name=Path.GetFileName(file),ext=Path.GetExtension(file).ToLowerInvariant();
             if(name.Equals("setoa.dat",StringComparison.OrdinalIgnoreCase))continue;
             if((ext==".dat"||ext==".dll"||ext==".bmp"||ext==".tbl"||ext==".nfo")&&!File.Exists(Path.Combine(folder,name)))result+=new FileInfo(file).Length;

@@ -9,11 +9,40 @@ internal static class GameInstallationChecks
     internal static void Run(string installed)
     {
         string folder=Path.Combine(Program.Root,"build","client-install-check-"+Guid.NewGuid().ToString("N"));
+        string presenceFixture=Path.Combine(Path.GetTempPath(),"foam-install-presence-"+Guid.NewGuid().ToString("N"));
         int checks=0;var catalog=GameInstallation.Catalog();
         string exe=Program.HashFile(Path.Combine(installed,"Darkages.exe")),archive=Program.HashFile(Path.Combine(installed,"setoa.dat"));
         try
         {
             Check(GameInstallation.Validate(installed)==Path.GetFullPath(installed),"Supported local installation rejected");checks++;
+            // Exercise folder selection with the real version-checked EXE/UI,
+            // but only presence placeholders for the other required files.
+            // This fixture is never launched as a game.
+            Directory.CreateDirectory(presenceFixture);
+            File.Copy(Path.Combine(installed,"Darkages.exe"),Path.Combine(presenceFixture,"Darkages.exe"));
+            File.Copy(Path.Combine(installed,"setoa.dat"),Path.Combine(presenceFixture,"setoa.dat"));
+            foreach(string name in catalog.assets.Where(name=>Path.GetExtension(name).Equals(".dat",StringComparison.OrdinalIgnoreCase)||
+                new[]{"Mss32.dll","binkw32.dll","mServer.tbl"}.Contains(name,StringComparer.OrdinalIgnoreCase)))
+                File.WriteAllBytes(Path.Combine(presenceFixture,name),new byte[0]);
+            Check(GameInstallation.Validate(presenceFixture,catalog)==presenceFixture,"Compatible install without loading pictures and legacy helpers rejected");checks++;
+            Check(!GameInstallation.AvailableAssets(presenceFixture,catalog).Any(file=>Path.GetExtension(file)==".bmp"),"Absent optional assets must not be copied or counted");checks++;
+            long essentialBytes=new FileInfo(Path.Combine(presenceFixture,"Darkages.exe")).Length+new FileInfo(Path.Combine(presenceFixture,"setoa.dat")).Length+512;
+            string emptySession=Path.Combine(presenceFixture,"unused-session-estimate");
+            Check(GameSessions.AdditionalBytes(emptySession,presenceFixture,presenceFixture)==essentialBytes,"New-tab disk estimate must tolerate absent optional assets");checks++;
+            string optional=Path.Combine(presenceFixture,"lod001.bmp");File.WriteAllBytes(optional,new byte[]{1,2,3});
+            Check(GameInstallation.AvailableAssets(presenceFixture,catalog).Contains(optional),"Present optional loading art must remain available");checks++;
+            Check(GameSessions.AdditionalBytes(emptySession,presenceFixture,presenceFixture)==essentialBytes+3,"New-tab disk estimate must include present optional art");checks++;
+            File.Delete(optional);
+            foreach(string name in new[]{"binkw32.dll","seo.dat"})
+            {
+                string absent=Path.Combine(presenceFixture,name);File.Delete(absent);
+                string error=null;try{GameInstallation.Validate(presenceFixture,catalog);}catch(IOException e){error=e.Message;}
+                Check(error!=null&&error.Contains(name)&&!error.Contains("lod001.bmp"),"Missing essential file must be named without reporting optional art");checks++;
+                File.WriteAllBytes(absent,new byte[0]);
+            }
+            File.Delete(Path.Combine(presenceFixture,"Darkages.exe"));
+            bool missingExe=false;try{GameInstallation.Validate(presenceFixture,catalog);}catch(IOException){missingExe=true;}
+            Check(missingExe,"Missing executable must still be rejected");checks++;
             foreach(string profile in new[]{"960x600","1088x640","1152x680"})
             {
                 string output=GameInstallation.PrepareProfile(profile,installed,Path.Combine(folder,profile));
@@ -41,6 +70,9 @@ internal static class GameInstallationChecks
             string build=Path.GetFullPath(Path.Combine(Program.Root,"build"))+Path.DirectorySeparatorChar;
             if(!Path.GetFullPath(folder).StartsWith(build,StringComparison.OrdinalIgnoreCase))throw new InvalidOperationException("Invalid test cleanup path.");
             if(Directory.Exists(folder))Directory.Delete(folder,true);
+            if(Path.GetDirectoryName(presenceFixture)!=Path.GetTempPath().TrimEnd(Path.DirectorySeparatorChar,Path.AltDirectorySeparatorChar)||
+                !Path.GetFileName(presenceFixture).StartsWith("foam-install-presence-",StringComparison.Ordinal))throw new InvalidOperationException("Invalid presence fixture cleanup path.");
+            if(Directory.Exists(presenceFixture))Directory.Delete(presenceFixture,true);
         }
     }
 }

@@ -4,10 +4,10 @@
   "public_key": "-----BEGIN PUBLIC KEY-----\nMIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEA4ojuJe8ynJpvdfP2aYj1\nUNNiuzV4rG1hQPPLJZ5EFcrSmAbpqTcePVSx3m125QcVm+KvH0LM8f2/qzej0K95\n2So0bh5zZ7bX2jlbu6Cfq09V8N9X5ixXFG7Zg+joI3eYio7pYLDsWGcJVUfb5S+6\nLPP6bmZakbZWO0fRIueqlAE456nMnlaD69N4/3QkpAvxqYXSYr3UddWES3sO0DQa\nXzVBGcKyVGkvmiQxddbxM0ehQPbVS1YAUjhCJMgs0NMd3m8N7HRGfu0cRU/QCoqs\nrhZDaNDTDoYPJgZ2GnzFW9aDsryyqajIgmQc9SRx9d/pZP3gJdl2F3QJGSuke9C+\n6OeuavExaoj/NmM62Dz1QuUGAEs8TmMsxrfbCDvM6JX9VdJ9A+a8n4l0vhsfeoHk\n2LzGwZUAxMNcQKMAOC+/TRtG9iF/pXdZ5hRKbgedz/oWQGzWgeSCCO0v8x++KoqN\n4dpjwU5j1siVCi7/QkJWCxaWUqQ62Q8L0jEfdICgLl0xAgMBAAE=\n-----END PUBLIC KEY-----\n",
   "automatic": true,
   "installed_app": {
-    "revision": 5,
-    "version": "0.3.1",
-    "manifest": "app-5-0.3.1.json",
-    "manifest_sha256": "70f75d8cdef1735109319a20dc8ac97aaca7b0934b0cddcf6b73e5dd1494814e"
+    "revision": 6,
+    "version": "0.3.2",
+    "manifest": "app-6-0.3.2.json",
+    "manifest_sha256": "760c0e9691783b7f10f04e0a22f0bef0bfef2fda8d621b868308d87f3eb154ec"
   },
   "installed_library": {
     "revision": 1,
