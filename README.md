@@ -22,11 +22,17 @@ Choose a window size to suit your display, including ultrawide, 1920 × 1080, an
 
 Nearly every piece of Dark Ages information you would otherwise look up on a website is now right in your client. The lightning-fast bottom-right Library brings together quests, skills, items, spells, and maps, with requirements, item costs, experience, ability points, icons, sprites, and related records. Look things up while you play, or open the Library on its own.
 
+## Skill/Spell planning
+
+One of the biggest pains in Dark Ages is figuring out exactly how many of each item you require, with how much gold, experience, etc. In Foam-Da you can simply choose all of the skills and spells you'd like to learn, and it will generate a list for you. Copy + Paste it to the Ruc board, or screenshot it to post elsewhere!
+
 ## Built-in macros and hotkeys
 
-Train selected skills and spells, or repeat your own key sequence at a chosen interval with Simple mode. Assail can press Space every half-second, and macros can keep running across game tabs. Assign shortcuts such as **Shift+1** or **Alt+2** to key combinations with timed pauses. Both panels are built into the client, reducing the need for extra programs. [See examples in the demo](docs/demo/README.md#built-in-macros-and-hotkeys).
+Train selected skills and spells at the dojo. There's both a standard and a "simple" mode which is less than 10 seconds to set up for the dojo. Level assails and skills effortlessly, and macros can keep running across game tabs. Assign shortcuts such as **Shift+1** for combos (with timed pauses!). Both panels are built into the client, reducing the need for extra programs. [See examples in the demo](docs/demo/README.md#built-in-macros-and-hotkeys).
 
 ## Build and run
+
+I've built a convenient all-in-one installer (at the top), but I've also provided the source code.
 
 Download the [source ZIP](https://github.com/bradmdesign/Foam-DA-public/archive/refs/heads/main.zip), extract it to a folder, then follow these steps.
 
